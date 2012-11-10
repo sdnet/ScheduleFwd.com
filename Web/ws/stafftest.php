@@ -9,8 +9,8 @@ require('classes/staff.php');
 require('classes/schedule.php');
 //header('Content-type: application/json');
 
-$year = 2012;
-$month = 12;
+$year = 2013;
+$month = 2;
 $groupcode = "testy";
 $args = array('col' => "$groupcode", 'type' => 'schedule', 'where' => array('month' => ''.$month.'', 'year' => ''.$year.''));
 $result = $db->delete($args);
@@ -23,8 +23,8 @@ $schedule->commit();
 
 
 
-$year = "2012";
-$month = "12";
+$year = "2013";
+$month = "02";
 $groupcode = "testy";
 
 
@@ -38,7 +38,7 @@ $staff = new Staff($groupcode,$id);
 $staff->getSchedule();
 $staff->getGroups();
 $staff->getUsers();
-$staff->staffSchedule();
+//$staff->staffSchedule();
 
 
 print_r($staff->users);

@@ -23,7 +23,9 @@ if(VerifySession($sessionId,$groupcode,$userId,'User') == true){
 	if($groupcode == "" || $userId == null) {
 			$message =  "emptyFields";
 	} else {
-		$timeOff = getTimeOffByUserId($groupcode,$userId,$tmonth,$tyear);
+            	$month = date('m',strtotime($tmonth));
+		$year = date('Y',strtotime($tyear));
+		$timeOff = getTimeOffByUserId($groupcode,$userId,$month,$year);
 		if(getRoleById($groupcode,$userId) == 'Admin'){
 			$isAdmin = true;
 		}
@@ -34,7 +36,7 @@ if(VerifySession($sessionId,$groupcode,$userId,'User') == true){
 			if(isset($group)) {
 				$userGroup = $group;
 			}
-			$where = array('groups' => array('$in' => array($userGroup)));
+			$where = array('active' => 1, 'groups' => array('$in' => array($userGroup)));
 			$arg = array('col' => "$groupcode", 'type' => 'shift', 'where' => $where);
 
 	
@@ -43,12 +45,12 @@ if(VerifySession($sessionId,$groupcode,$userId,'User') == true){
 			//make the schedule for this month
 			$today = time();
 			if($tmonth != null){
-				$month = $tmonth;
-				$year = $tyear;
+				$month = date('m',strtotime($tmonth));
+				$year = date('Y',strtotime($tyear));
 			}else{
 				
 				$year = date('Y',strtotime("+2 months", $today));
-				$month =  date('n',strtotime("+2 months", $today));
+				$month =  date('m',strtotime("+2 months", $today));
 			}
 			
 			$days = cal_days_in_month(CAL_GREGORIAN, $month, $year);

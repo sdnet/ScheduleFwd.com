@@ -991,25 +991,25 @@ function shiftFallsOnAShift($shiftArray, $startTime, $endTime) {
 //Checks to see if string date is a weekend
 function isWeekend($date) {
     $weekend = false;
-     if(date('N', strtotime($date)) >= 6){
-         $weekend = true;
-     }
-     return $weekend;
+    if (date('N', strtotime($date)) >= 6) {
+        $weekend = true;
+    }
+    return $weekend;
 }
 
-function isNight($startdate,$enddate) {
-        $timestamp = strtotime($startdate);
-     $day = date('l', $timestamp);
-        $month = date('m', $timestamp);
-        $year = date('Y', $timestamp);
-       $nightstamp = strtotime('' . $month . '-' . $day . '-' . $year . ' 3:00am');
+function isNight($startdate, $enddate) {
+    $timestamp = strtotime($startdate);
+    $day = date('l', $timestamp);
+    $month = date('m', $timestamp);
+    $year = date('Y', $timestamp);
+    $nightstamp = strtotime('' . $month . '-' . $day . '-' . $year . ' 3:00am');
     if ($nightstamp > strtotime($startdate) && $nightstamp < strtotime($enddate)) {
-            $dayornight = true;
-        } else {
-            $dayornight = false;
-        }
-        
-        return $dayornight;
+        $dayornight = true;
+    } else {
+        $dayornight = false;
+    }
+
+    return $dayornight;
 }
 
 function maxGroupHours($users, $group) {
@@ -1140,87 +1140,119 @@ function getNumberOfDaysConsec($groupcode, $shiftId, $userId, $schedule = false,
     if ($days == null) {
         $days = getConfig($groupcode, 'maxConsecWorkingDays');
     }
-    
+
     if ($schedule) {
         foreach ($schedule as $shift) {
             if ($shift['id'] == $shiftId) {
                 $start = strtotime($shift['start']);
             }
-             foreach ($shift['users'] as $user) {
-                    if ($userId == $user['id']) {
-                        $tempdate = date('Y-m-j', strtotime($shift['start']));
-                        $daysworked[] = $tempdate;
-                    }
+            foreach ($shift['users'] as $user) {
+                if ($userId == $user['id']) {
+                    $tempdate = date('Y-m-j', strtotime($shift['start']));
+                    $daysworked[] = $tempdate;
                 }
+            }
         }
         $daysworked = array_unique($daysworked);
         $dayarray = array();
         for ($i = 1; $i <= $days; $i++) {
             $date = (int) date('j', $start);
-            $month = date('m',$start);
-            $year = date('Y',$start);
+            $month = date('m', $start);
+            $year = date('Y', $start);
             $date = ($date - $i);
             if ($date <= 0) {
                 $date = 1;
             }
-            $dayarray[] = $year . '-'.$month.'-'. $date;
+            $dayarray[] = $year . '-' . $month . '-' . $date;
         }
 
         foreach ($dayarray as $day) {
-               if(in_array($day,$daysworked)){
-                   $daymatches++;
-               }else{
-                   break;
-               }
+            if (in_array($day, $daysworked)) {
+                $daymatches++;
+            } else {
+                break;
+            }
         }
     }
     return $daymatches;
 }
 
 function getNextDayShiftId($groupcode, $day, $shiftname, $schedule) {
-   
+
     $nextday = strtotime(date("Y-m-d", strtotime($date)) . " +1 day");
     if ($schedule) {
         foreach ($schedule as $shift) {
-                if((date('Y-m-d',$nextday) == date('Y-m-d',strtotime($shift['start']))) && ($shift['shiftName'] == $shiftname)){
-                 $shiftId = $shift['id'];   
-                }
+            if ((date('Y-m-d', $nextday) == date('Y-m-d', strtotime($shift['start']))) && ($shift['shiftName'] == $shiftname)) {
+                $shiftId = $shift['id'];
+            }
         }
     }
-       
+
     return $shiftId;
 }
 
-function getWeekendCountForUser($groupcode,$userId,$month,$year){
-    $time = date("Y-m-d H:i:s",strtotime(''.$year.'-'.$month.'-01'));
+function getNextDayShift($groupcode, $date, $shiftname, $schedule) {
+
+    $nextday = strtotime(date("Y-m-d", strtotime($date)) . " +1 day");
+    if ($schedule) {
+        foreach ($schedule as $shift) {
+            if ((date('Y-m-d', $nextday) == date('Y-m-d', strtotime($shift['start']))) && ($shift['shiftId'] == $shiftId)) {
+                $retShift = $shift;
+            }
+        }
+    }
+
+    return $retShift;
+}
+
+function getWeekendCountForUser($groupcode, $userId, $month, $year) {
+    $time = date("Y-m-d H:i:s", strtotime('' . $year . '-' . $month . '-01'));
     $schedules = getUserSchedule($userId, $groupcode, 2, 'previous', $time);
     print_r($schedules);
     $weekendcount = 0;
-    foreach($schedules as $schedule){
-        foreach($schedule['schedule'] as $shift){
-            if(isWeekend($shift['start'])){
+    foreach ($schedules as $schedule) {
+        foreach ($schedule['schedule'] as $shift) {
+            if (isWeekend($shift['start'])) {
                 $weekendcount++;
             }
         }
-        
     }
-    
+
     return $weekendcount;
 }
 
-function getNightCountForUser($groupcode,$userId,$month,$year){
-    $time = date("Y-m-d H:i:s",strtotime(''.$year.'-'.$month.'-01'));
-    $schedules = getUserSchedule($userId, $groupcode, 2, 'next', $time);
+function getNightCountForUser($groupcode, $userId, $month, $year) {
+    $time = date("Y-m-d H:i:s", strtotime('' . $year . '-' . $month . '-01'));
+    $schedules = getUserSchedule($userId, $groupcode, 2, 'previous', $time);
     $nightcount = 0;
-    foreach($schedules as $schedule){
-        foreach($schedule['schedule'] as $shift){
-            if(isNight($shift['start'], $shift['endreal'])){
+    foreach ($schedules as $schedule) {
+        foreach ($schedule['schedule'] as $shift) {
+            if (isNight($shift['start'], $shift['endreal'])) {
                 $nightcount++;
             }
         }
-        
     }
-    
+
     return $nightcount;
+}
+
+function getPreviousShiftWorked($schedule, $userId, $shiftId) {
+    $retShift = false;
+    for ($i = 0; $i < $shiftId; $i++) {
+        if (in_array($userId, $schedule[$i]['users'])) {
+            $retShift = $schedule[$i];
+        }
+    }
+    return $retShift;
+}
+
+function getNextShiftWorked($schedule, $userId, $shiftId) {
+    $retShift = false;
+    for ($i = count($schedule); $i > $shiftId; $i--) {
+        if (in_array($userId, $schedule[$i]['users'])) {
+            $retShift = $schedule[$i];
+        }
+    }
+    return $retShift;
 }
 ?>

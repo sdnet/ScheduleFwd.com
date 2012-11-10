@@ -18,14 +18,15 @@ if(VerifySession($sessionId,$groupcode,$userId,'User') == true){
 			$message =  "emptyFields";
 	} else {
 		if($year == null){
-			$year = substr($date, 0, 4);
+			$year = date('Y',strtotime($date));
 		}
 		if($month == null){
-			$month = substr($date, 5, 2);
+			$month = date('m',strtotime($date));
 		}
 		if($priority == null){
 		 $priority = 0;	
 		}
+                $date = date('Y-m-d',strtotime($date));
 		if($update == true){
 			$where = array('year' => $year, 'month' => $month, 'userId' => $userId, 'time_off' => array('$in' => array(array($date => $shiftId))));
 			$arg = array('col' => "$groupcode", 'type' => 'timeoff',  'where' => $where);

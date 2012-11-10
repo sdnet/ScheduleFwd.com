@@ -55,7 +55,7 @@ class Schedule {
 
             foreach ($this->shifts as $shift) {
                 if (in_array($weekday, $shift['days'])) {
-                    $i++;
+                    
                     $start = stringReplace(2, ":", $shift['start']);
                     $end = stringReplace(2, ":", $shift['end']);
                     $startdate = "$tempDate $start:00";
@@ -64,6 +64,7 @@ class Schedule {
                         $endtime = strtotime('+1 day', strtotime($enddate));
                         $enddate = date("Y-m-d H:i:s", $endtime);
                     }
+                    $shiftId = $this->db->_id($shift['_id']);
                     $scheduleDays[] = array('id' => $i,
                         'title' => "",
                         'start' => "$tempDate $start:00",
@@ -75,8 +76,10 @@ class Schedule {
                         'users' => "",
                         'color' => $shift['color'],
                         'number' => $shift['number'],
-                        'day' => "$weekday"
+                        'day' => "$weekday",
+                        'shiftId' => $shiftId
                     );
+                    $i++;
                 }
             }
         }
