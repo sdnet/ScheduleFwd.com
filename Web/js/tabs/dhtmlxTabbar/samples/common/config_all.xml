@@ -1,0 +1,7 @@
+<tabbar>
+    <row>
+        <tab id="t1" selected="1" width="50">A</tab>
+        <tab id="t2" width="50">B</tab>
+        <tab id="t3" width="50">C</tab>
+    </row>
+</tabbar>

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<tabbar>
+    <row>
+        <tab id="a1" width='200px'>1</tab>
+        <tab id="a2" width='200px'>2</tab>
+        <tab id="b1" width='150px'>3</tab>
+        <tab id="b2" width='100px' selected="1">4</tab>
+        <tab id="b3" width='150px'>5</tab>
+    </row>
+</tabbar>

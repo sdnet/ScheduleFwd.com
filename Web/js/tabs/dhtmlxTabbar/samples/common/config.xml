@@ -1,0 +1,7 @@
+<tabbar>
+    <row>
+        <tab id="t1">Reports</tab>
+        <tab id="t2">Timeline</tab>
+        <tab id="t3">Groups</tab>
+    </row>
+</tabbar>

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<items>
+	<item type="label" label="Common Settings"/>
+	<item type="checkbox" name="case_insensitive_search" label="Case insensitive search" checked="true"/>
+	<item type="checkbox" name="spell_checking" label="Spell-checking"/>
+	<item type="checkbox" name="multiline_support" label="Multiline support"/>
+	<item type="checkbox" name="line_numbering" label="Line numbering" checked="true"/>
+	<item type="checkbox" name="syntax_highlighting" label="Syntax highlighting" checked="true">
+		<item type="label" label="Interface">
+			<item type="checkbox" name="test" label="Test" checked="true"/>
+		</item>
+	</item>
+	<item type="checkbox" name="custom_colors" label="Use custom colors">
+		<item type="select" name="font_color" label="Font color">
+			<option value="red" text="Red"/>
+			<option value="green" text="Green"/>
+			<option value="blue" text="Blue"/>
+			<option value="magenta" text="Magenta"/>
+			<option value="orange" text="Orange"/>
+			<option value="black" text="Black" selected="true"/>
+			<option value="white" text="White"/>
+		</item>
+		<item type="select" name="background_color" label="Background color">
+			<option value="red" text="Red"/>
+			<option value="green" text="Green"/>
+			<option value="blue" text="Blue"/>
+			<option value="magenta" text="Magenta"/>
+			<option value="orange" text="Orange"/>
+			<option value="black" text="Black"/>
+			<option value="white" text="White" selected="true"/>
+		</item>
+		<item type="input" aname="custom_colors_input" value="Cyan, Yellow" label="Custom Colors"/>
+		<item type="password" aname="pwd2" value="123" label="Enter your password"/>
+	</item>
+	<item type="label" label="Updates"/>
+	<item type="radio" name="updates" value="auto" label="Update automatically" checked="1">
+		<item type="checkbox" name="upd_app" label="Application" checked="1"/>
+		<item type="checkbox" name="upd_plugs" label="Plugins" checked="1"/>
+		<item type="checkbox" name="upd_addons" label="Addons"/>
+		<item type="checkbox" name="upd_search" label="Seacrh engines"/>
+	</item>
+	<item type="radio" name="updates" value="warn" label="Warn me if new version available">
+		<item type="radio" name="upd_auto" value="prepare_download" label="Prepare download"/>
+		<item type="radio" name="upd_auto" value="only_inform" label="Olny inform" checked="1"/>
+		<item type="button" name="btn2" value="Submit" command="reset"/>
+	</item>
+	<item type="fieldset" name="mydata" label="This is fieldset">
+		<item type="checkbox" name="vsync" label="VSync" checked="1"/>
+		<item type="checkbox" name="mouse_invert" label="Swap Mouse Buttons"/>
+		<item type="checkbox" name="custom_cursor" label="Custom Mouse Cursor" checked="0">
+			<item type="radio" name="cursor_value" value="dot" label="Dot" checked="1"/>
+			<item type="radio" name="cursor_value" value="cross" label="Cross"/>
+			<item type="radio" name="cursor_value" value="circle" label="Circle"/>
+			<item type="radio" name="cursor_value" value="triangle" label="Triangle"/>
+		</item>
+	</item>
+</items>
