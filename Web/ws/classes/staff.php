@@ -335,8 +335,49 @@ class Staff {
         
     }
 
-    private function isPreferredShiftAfterNight($user, $day) {
-        
+	/*
+		Name: isPreferredShiftAfterNight
+		Author: Steve A
+		
+		Description: Calculates the difference between the end of the night shift 
+		and the start of the would-be next shift and validates the 
+		calculated number against the user's preference
+		
+		@params	$user			The user object
+		@params	$nightShift		The night shift (end time)
+		@params	$nextShift		The would-be next shift (start time)
+	*/
+    private function isPreferredShiftAfterNight($user, $nightShift, $nextShift) {
+		$ret = false;
+		
+		// Get user's current preferences (values: Wed7am, Wed12pm, Wed7pm, Thurs7am)
+        $userPref = $user['preferences']['afterNightShift'];
+		
+		// Get the night shift's ending time
+		$nightEndTime = new DateTime($nightShift['endreal']);
+		
+		// Get the would-be next shift's start time
+		$nextStartTime = new DateTime($nextShift['start']);
+		
+		// Calculate the hour difference of the user's preference
+		$hourDiff = 0;
+		if ($userPref == "Wed7am") {
+			$hourDiff = 24;
+		} else if ($userPref == "Wed12pm") {
+			$hourDiff = 31;
+		} else if ($userPref == "Wed7pm") {
+			$hourDiff = 36;
+		} else if ($userPref == "Thurs7am") {
+			$hourDiff = 48;
+		}
+		
+		// Find the difference between the two dates and calculate the difference
+		$hoursBetween = date_diff($nightEndTime, $nextStartTime);
+		if ($hourDiff >= $hoursBetween) {
+			$ret = true;
+		}
+		
+		return $ret;
     }
 
     private function isShiftBlockable($user, $shift) {
@@ -363,13 +404,25 @@ class Staff {
         return false;
     }
 
-    private function getUsersPreferredShift($user) {
+	/*
+		Name: getUsersPreferredShift
+		Author: Steve A
+		
+		Description: Attemps to retrieve the user's preferred shift based
+		on a key offset (0 being most preferred)
+		
+		@params	$user			The user object
+		@params	$offset			The key offset for the shift preference doc
+	*/
+    private function getUsersPreferredShift($user, $offset = 0) {
 		$ret = "";
-        $preferredShiftName = $user['preferences']['shifts']['0'];
+		
+		// Get the shift preference from the user document and return it, if exists
+        $preferredShiftName = $user['preferences']['shifts'][$offset];
 		if ($preferredShiftName != "") {
 			$ret = $preferredShiftName;
 		}
-		
+
 		return $ret;
     }
 
@@ -389,10 +442,10 @@ class Staff {
                 $shift = $this->getUsersPreferredShift($user);
 
                 // Gets the next instance of the user-preferred shift
-                $nextShift = $this->getNextAvailableShift($shift);
+                $nextShift = $this->getFirstAvailableShift($shift);
 
                 // Unless the user has requested this shift off, process
-                if (!$this->timeOffExistsForUser($user, $shift)) {
+                if (!$this->timeOffExistsForUser($user, $nextShift)) {
 
                     // If user has worked their max monthly hours, break
                     if (!$this->isUserOverMax($user)) {
@@ -400,23 +453,23 @@ class Staff {
                         // If the user has requested the system to block shifts, loop 
                         // through the block at once and attempt to place the user 
                         // into the complete block
-                        if ($this->isShiftBlockable($shift)) {
+                        if (($user['preferences']['block_days'] != null) && ($user['preferences']['block_days'] > 0)) {
 
                             // Place the user into the first day of the block series
                             // if circadian is met
-                            if ($this->isCircadianMet($shift)) {
+                            if ($this->isCircadianMet($user, $nextShift)) {
                                 $this->placeUserInShift($user, $nextShift);
                             }
 
                             // Loop through the next available shifts based on the number 
                             // of blockable shifts preferred by the user
-                            for ($i = 0; $i < $user['preferences']['blockDaysNum']; $i++) {
-                                $nextShift = getNextShiftByDay($shift, $day);
-                                if ($this->isCircadianMet($nextShift)) {
-                                    $this->placeUserInShift($user, $nextShift);
-                                    $canusertakeshift = true;
-                                }
-                            }
+							for ($i = 0; $i < $user['preferences']['block_days']; $i++) {
+								$nextShift2 = getNextShiftByDay($nextShift, $day);
+								if ($this->isCircadianMet($user, $nextShift2)) {
+									$this->placeUserInShift($user, $nextShift2);
+									$canusertakeshift = true;
+								}
+							}
                         } else {
 
                             // The user does not want their shifts blocked, so simply process 
