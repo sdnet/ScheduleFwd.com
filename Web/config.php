@@ -54,13 +54,13 @@
 									<table style="width: 100%;">
                                         <tr>
                                             <td style="width: 50%; text-align: center;">
-                                                <div id="btnUserMgmt" class="homeMainButton" onclick="toUserMgmt();">
+                                                <div id="btnUserMgmt" class="homeMainButton" onClick="toUserMgmt();">
                                                     <h2>User Management</h2>
                                                     <h3>Create, Edit and Delete System Users</h3>
                                                 </div> <br />
                                             </td>
                                             <td style="width: 50%; text-align: center;">
-                                                <div id="btnSchedMgmt" class="homeMainButton" onclick="toSchedMgmt();">
+                                                <div id="btnSchedMgmt" class="homeMainButton" onClick="toSchedMgmt();">
                                                     <h2>Schedule Management</h2>
                                                     <h3>Generate and View Monthly Schedules</h3>
                                                 </div> <br />
@@ -68,13 +68,13 @@
                                         </tr>
                                         <tr>
                                             <td style="width: 50%; text-align: center;">
-                                                <div id="btnUserMgmt" class="homeMainButton" onclick="toPrefMgmt();">
+                                                <div id="btnUserMgmt" class="homeMainButton" onClick="toPrefMgmt();">
                                                     <h2>User Request Approvals</h2>
                                                     <h3>View Preference and Time Off Requests</h3>
                                                 </div>
                                             </td>
                                             <td style="width: 50%; text-align: center;">
-                                                <div id="btnSchedMgmt" class="homeMainButton" onclick="toSupport();">
+                                                <div id="btnSchedMgmt" class="homeMainButton" onClick="toSupport();">
                                                     <h2>Support</h2>
                                                     <h3>Create and Get Application Support</h3>
                                                 </div>
