@@ -438,16 +438,17 @@ function getTimeOffByUserId($groupcode, $userId, $month = null, $year = null) {
     }
 }
 
-function getTimeOffByUserIdAndShiftId($groupcode, $userId, $date, $shiftId) {
+function isTimeoffRequestedByUserIdAndShiftId($groupcode, $userId, $date, $shiftId) {
+	$ret = false;
     $db = new MONGORILLA_DB;
     $where = array('year' => $year, 'month' => $month, 'time_off' => array('$in' => array($date => $shiftId)), 'userId' => $userId, 'active' => 'Approved');
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
     $result = $db->find($args);
     if ($result != null) {
-        return $result;
-    } else {
-        return false;
+        $ret = true;
     }
+	
+	return $ret;
 }
 
 function getShiftsByUserId($groupcode, $userId) {

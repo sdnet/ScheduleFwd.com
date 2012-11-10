@@ -237,13 +237,12 @@ class Staff {
     }
 
     private function timeOffExistsForUser($user, $scheduleShift) {
-        // Not yet complete
         $ret = false;
         $userId = $this->db->_id($user['id']);
         $shiftId = $scheduleShift['shiftId'];
         $date = $this->getDateFromFullDateString($scheduleShift['start']);
 
-        if (getTimeOffByUserIdAndShiftId($this->groupcode, $userId, $date, $shiftId)) {
+        if (isTimeoffRequestedByUserIdAndShiftId($this->groupcode, $userId, $date, $shiftId)) {
             $ret = true;
         }
 
@@ -290,10 +289,6 @@ class Staff {
         }
 
         return $retWeekdayOrWeekend;
-    }
-
-    private function isShiftWithinBlockForUser($user, $shift) {
-        
     }
 
     private function isUserUnderMin($user) {
