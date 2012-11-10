@@ -364,7 +364,13 @@ class Staff {
     }
 
     private function getUsersPreferredShift($user) {
-        
+		$ret = "";
+        $preferredShiftName = $user['preferences']['shifts']['0'];
+		if ($preferredShiftName != "") {
+			$ret = $preferredShiftName;
+		}
+		
+		return $ret;
     }
 
     private function placeUserInShift($user, $shiftId) {
