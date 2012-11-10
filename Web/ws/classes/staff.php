@@ -256,7 +256,7 @@ class Staff {
         $end = strtotime($shift['endreal']);
         $prevEnd = strtotime($prevShift['endreal'] . '+ 24 hours');
         $nextStart = strtotime($nextShift['start'] . '- 24 hours');
-        if($nextShift == null){
+        if ($nextShift == null) {
             $nextStart = strtotime($this->year . ' + 1 year');
         }
         if ($start < $prevEnd && $end > $nextStart) {
@@ -322,7 +322,13 @@ class Staff {
     }
 
     private function getNextAvailableShift($shift) {
-        
+        $shiftId = $shift['id'];
+        return getNextAvailableShift($this->schedule, $shiftId);
+    }
+
+    private function getFirstAvailableShift($shift) {
+        $shiftId = $shift['shiftId'];
+        return getFirstAvailableShift($this->schedule, $shiftId);
     }
 
     private function isPreferredDay($user, $day) {

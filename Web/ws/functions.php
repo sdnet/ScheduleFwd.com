@@ -1256,4 +1256,27 @@ function getNextShiftWorked($schedule, $userId, $shiftId) {
     }
     return $retShift;
 }
+
+//Gets the next available shift after the current shift
+function getNextAvailableShift($schedule, $shiftId) {
+    $retShift = false;
+    for ($i = count($schedule); $i > $shiftId; $i--) {
+        if ($schedule[$i]['number'] < count($schedule[$i]['users'])) {
+            $retShift = $schedule[$i];
+        }
+    }
+    return $retShift;
+}
+
+//Get first available shift by template shiftId
+function getFirstAvailableShift($schedule, $shiftId) {
+    $retShift = false;
+    for ($i = count($schedule); $i < $shiftId; $i++) {
+        if ($schedule[$i]['number'] < count($schedule[$i]['users'])) {
+            $retShift = $schedule[$i];
+            break;
+        }
+    }
+    return $retShift;
+}
 ?>
