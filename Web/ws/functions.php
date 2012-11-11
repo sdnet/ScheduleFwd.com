@@ -438,7 +438,7 @@ function getTimeOffByUserId($groupcode, $userId, $month = null, $year = null) {
     }
 }
 
-function isTimeoffRequestedByUserIdAndShiftId($groupcode, $userId, $date, $shiftId) {
+function isTimeoffRequestedByUserIdAndShiftId($groupcode, $userId, $date, $month, $year, $shiftId) {
 	$ret = false;
     $db = new MONGORILLA_DB;
     $where = array('year' => $year, 'month' => $month, 'time_off' => array('$in' => array($date => $shiftId)), 'userId' => $userId, 'active' => 'Approved');

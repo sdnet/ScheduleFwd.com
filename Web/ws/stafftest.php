@@ -38,8 +38,7 @@ $staff = new Staff($groupcode,$id);
 $staff->getSchedule();
 $staff->getGroups();
 $staff->getUsers();
-//$staff->staffSchedule();
-
+$staff->staffSchedule();
 
 print_r($staff->users);
 

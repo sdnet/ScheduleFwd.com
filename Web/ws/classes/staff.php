@@ -1,7 +1,7 @@
 <?php
 
-//error_reporting(E_ALL);
-//ini_set('display_errors', '1');
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 //require('rules.php');
 //require('rulesEngine.php');
 require_once('' . $_SERVER['DOCUMENT_ROOT'] . '/core/mg_base.class.php');
@@ -51,6 +51,7 @@ class Staff {
         foreach ($results as $result) {
             $userId = $this->db->_id($result['_id']);
             $timeoffrequests = getTimeOffByUserId($this->groupcode, $userId, $this->month, $this->year);
+
             $timeoffs = array();
             if ($timeoffrequests != null) {
                 foreach ($timeoffrequests as $key => $timeoff) {
@@ -229,7 +230,7 @@ class Staff {
     }
 
     private function getDateFromFullDateString($fullDateString) {
-        $retDate = split(" ", $fullDateString);
+        $retDate = explode(" ", $fullDateString);
         if (count($retDate) > 0) {
             $retDate = $retDate[0];
         } else {
@@ -240,11 +241,14 @@ class Staff {
 
     private function timeOffExistsForUser($user, $scheduleShift) {
         $ret = false;
-        $userId = $this->db->_id($user['id']);
+        $userId = $this->db->_id($user['_id']);
         $shiftId = $scheduleShift['shiftId'];
         $date = $this->getDateFromFullDateString($scheduleShift['start']);
+		$date2 = explode("-",$date);
+		$month = $date2[1];
+		$year = $date2[2];
 
-        if (isTimeoffRequestedByUserIdAndShiftId($this->groupcode, $userId, $date, $shiftId)) {
+        if (isTimeoffRequestedByUserIdAndShiftId($this->groupcode, $userId, $date, $month, $year, $shiftId)) {
             $ret = true;
         }
 
@@ -506,6 +510,9 @@ class Staff {
                         } //end if ($this->isShiftBlockable($shift)
                     }// end if (!$this->isUserOverMax($user)
                 } // end if (!$this->timeOffExistsForUser($user,$shift))
+				
+				$canUserTakeShift = true;
+				
             } // end while
         } // end foreach	
     }
@@ -557,6 +564,7 @@ class Staff {
     }
 
     public function staffSchedule() {
+		echo "In staffSchedule";
         $this->placeUsersInPreferredShifts();
         // $this->placeUsersInRemainingShifts();
 
