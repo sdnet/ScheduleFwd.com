@@ -331,57 +331,72 @@ class Staff {
         return getFirstAvailableShift($this->schedule, $shiftId);
     }
 
-    private function isPreferredDay($user, $day) {
-        
+    private function isPreferredDay($user, $date) {
+        $dayarray = $user['preferences']['days'];
+        $day = date('l', strtotime($date));
+        return in_array($day, $dayarray);
     }
 
-	/*
-		Name: isPreferredShiftAfterNight
-		Author: Steve A
-		
-		Description: Calculates the difference between the end of the night shift 
-		and the start of the would-be next shift and validates the 
-		calculated number against the user's preference
-		
-		@params	$user			The user object
-		@params	$nightShift		The night shift (end time)
-		@params	$nextShift		The would-be next shift (start time)
-	*/
+    /*
+      Name: isPreferredShiftAfterNight
+      Author: Steve A
+
+      Description: Calculates the difference between the end of the night shift
+      and the start of the would-be next shift and validates the
+      calculated number against the user's preference
+
+      @params	$user			The user object
+      @params	$nightShift		The night shift (end time)
+      @params	$nextShift		The would-be next shift (start time)
+     */
+
     private function isPreferredShiftAfterNight($user, $nightShift, $nextShift) {
-		$ret = false;
-		
-		// Get user's current preferences (values: Wed7am, Wed12pm, Wed7pm, Thurs7am)
+        $ret = false;
+
+        // Get user's current preferences (values: Wed7am, Wed12pm, Wed7pm, Thurs7am)
         $userPref = $user['preferences']['afterNightShift'];
-		
-		// Get the night shift's ending time
-		$nightEndTime = new DateTime($nightShift['endreal']);
-		
-		// Get the would-be next shift's start time
-		$nextStartTime = new DateTime($nextShift['start']);
-		
-		// Calculate the hour difference of the user's preference
-		$hourDiff = 0;
-		if ($userPref == "Wed7am") {
-			$hourDiff = 24;
-		} else if ($userPref == "Wed12pm") {
-			$hourDiff = 31;
-		} else if ($userPref == "Wed7pm") {
-			$hourDiff = 36;
-		} else if ($userPref == "Thurs7am") {
-			$hourDiff = 48;
-		}
-		
-		// Find the difference between the two dates and calculate the difference
-		$hoursBetween = date_diff($nightEndTime, $nextStartTime);
-		if ($hourDiff >= $hoursBetween) {
-			$ret = true;
-		}
-		
-		return $ret;
+
+        // Get the night shift's ending time
+        $nightEndTime = new DateTime($nightShift['endreal']);
+
+        // Get the would-be next shift's start time
+        $nextStartTime = new DateTime($nextShift['start']);
+
+        // Calculate the hour difference of the user's preference
+        $hourDiff = 0;
+        if ($userPref == "Wed7am") {
+            $hourDiff = 24;
+        } else if ($userPref == "Wed12pm") {
+            $hourDiff = 31;
+        } else if ($userPref == "Wed7pm") {
+            $hourDiff = 36;
+        } else if ($userPref == "Thurs7am") {
+            $hourDiff = 48;
+        }
+
+        // Find the difference between the two dates and calculate the difference
+        $hoursBetween = date_diff($nightEndTime, $nextStartTime);
+        if ($hourDiff >= $hoursBetween) {
+            $ret = true;
+        }
+
+        return $ret;
     }
 
     private function isShiftBlockable($user, $shift) {
-        
+        $blockable = false;
+        if (isWeekend($shift['start'])) {
+            $blockable = $user['preferences']['block_weekend'];
+        } else {
+            if ($shift['preferences']['block_days']) {
+                if (isNight($shift['start'], $shift['endreal'])) {
+                    $blockable = $user['preferences']['desired_nights'];
+                } else {
+                    $blockable = $user['preferences']['desired_days'];
+                }
+            }
+        }
+        return $blockable;
     }
 
     private function getUsersByShiftPreference($shift) {
@@ -404,26 +419,27 @@ class Staff {
         return false;
     }
 
-	/*
-		Name: getUsersPreferredShift
-		Author: Steve A
-		
-		Description: Attemps to retrieve the user's preferred shift based
-		on a key offset (0 being most preferred)
-		
-		@params	$user			The user object
-		@params	$offset			The key offset for the shift preference doc
-	*/
-    private function getUsersPreferredShift($user, $offset = 0) {
-		$ret = "";
-		
-		// Get the shift preference from the user document and return it, if exists
-        $preferredShiftName = $user['preferences']['shifts'][$offset];
-		if ($preferredShiftName != "") {
-			$ret = $preferredShiftName;
-		}
+    /*
+      Name: getUsersPreferredShift
+      Author: Steve A
 
-		return $ret;
+      Description: Attemps to retrieve the user's preferred shift based
+      on a key offset (0 being most preferred)
+
+      @params	$user			The user object
+      @params	$offset			The key offset for the shift preference doc
+     */
+
+    private function getUsersPreferredShift($user, $offset = 0) {
+        $ret = "";
+
+        // Get the shift preference from the user document and return it, if exists
+        $preferredShiftName = $user['preferences']['shifts'][$offset];
+        if ($preferredShiftName != "") {
+            $ret = $preferredShiftName;
+        }
+
+        return $ret;
     }
 
     private function placeUserInShift($user, $shiftId) {
@@ -463,13 +479,13 @@ class Staff {
 
                             // Loop through the next available shifts based on the number 
                             // of blockable shifts preferred by the user
-							for ($i = 0; $i < $user['preferences']['block_days']; $i++) {
-								$nextShift2 = getNextShiftByDay($nextShift, $day);
-								if ($this->isCircadianMet($user, $nextShift2)) {
-									$this->placeUserInShift($user, $nextShift2);
-									$canusertakeshift = true;
-								}
-							}
+                            for ($i = 0; $i < $user['preferences']['block_days']; $i++) {
+                                $nextShift2 = getNextShiftByDay($nextShift, $day);
+                                if ($this->isCircadianMet($user, $nextShift2)) {
+                                    $this->placeUserInShift($user, $nextShift2);
+                                    $canusertakeshift = true;
+                                }
+                            }
                         } else {
 
                             // The user does not want their shifts blocked, so simply process 
