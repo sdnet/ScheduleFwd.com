@@ -428,7 +428,7 @@ function getTimeOffByUserId($groupcode, $userId, $month = null, $year = null) {
     if ($month == null) {
         $month = '' . date('m') . '';
     }
-    $where = array('year' => $year, 'time_off' => $month, 'userId' => $userId);
+    $where = array('year' => "$year", 'month' => "$month", 'userId' => $userId);
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
     $result = $db->find($args);
     if ($result != null) {
@@ -1253,7 +1253,10 @@ function getPreviousShiftWorked($schedule, $userId, $shiftId) {
 
 function getNextShiftWorked($schedule, $userId, $shiftId) {
     $retShift = false;
-    for ($i = count($schedule) - 1; $i > $shiftId; $i--) {
+    $count = count($schedule);
+    $count--;
+   
+    for ($i = $count; $i > $shiftId; $i--) {
         $userList = $schedule[$i]['users'];
         if (empty($schedule[$i]['users'])) {
             $userList = array();
@@ -1268,7 +1271,9 @@ function getNextShiftWorked($schedule, $userId, $shiftId) {
 //Gets the next available shift after the current shift
 function getNextAvailableShift($schedule, $shiftId) {
     $retShift = false;
-    for ($i = count($schedule) - 1; $i > $shiftId; $i--) {
+    $count = count($schedule);
+    $count--;
+    for ($i = $count; $i > $shiftId; $i--) {
         if ($schedule[$i]['number'] < count($schedule[$i]['users'])) {
             $retShift = $schedule[$i];
         }
@@ -1279,10 +1284,9 @@ function getNextAvailableShift($schedule, $shiftId) {
 //Get first available shift by template shiftId
 function getFirstAvailableShift($schedule, $shiftId) {
     $retShift = false;
-    echo $shiftId;
-    echo "<br />";
-
-    for ($i = 0; $i <= count($schedule) - 1; $i++) {
+    $count = count($schedule);
+    $count--;
+    for ($i = 0; $i <= $count; $i++) {
         $usercount = 0;
         if (($schedule[$i]['shiftId'] == $shiftId)) {
             $userList = $schedule[$i]['users'];
