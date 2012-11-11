@@ -65,10 +65,9 @@ class Staff {
                     }
                     if ($timeoff['priority'] == '1') {
                         $tokens++;
-                        $tokens++;
-                    } else {
-                        $tokens++;
                     }
+                        $tokens++;
+                    
                 }
             }
             $nightcount = getNightCountForUser($this->groupcode, $userId, $this->month, $this->year);
@@ -406,9 +405,17 @@ class Staff {
     private function isShiftBlockable($user, $shift) {
         $blockable = false;
         if (isWeekend($shift['start'])) {
-            $blockable = $user['preferences']['block_weekend'];
+            if ($user['preferences']['block_weekend'] == 1) {
+                if (date('w', strtotime($shift['start'])) == '0') {
+                    $blockable = 1;
+                } else {
+                    $blockable = 2;
+                }
+            } else {
+                $blockable = 1;
+            }
         } else {
-            if ($shift['preferences']['block_days']) {
+            if ($user['preferences']['block_days'] == '1') {
                 if (isNight($shift['start'], $shift['endreal'])) {
                     $blockable = $user['preferences']['desired_nights'];
                 } else {
@@ -471,6 +478,7 @@ class Staff {
 
     private function placeUserInShift($user, $shift) {
         $shiftId = $shift['id'];
+        $tokens = 0;
         $this->schedule[$shiftId]['users'][] = array('first_name' => $user['first_name'], 'last_name' => $user['last_name'], 'user_name' => $user['user_name'], 'id' => $this->db->_id($user['_id']));
         foreach ($this->users as $key => $us) {
             if ($this->db->_id($user['_id']) == $this->db->_id($us['_id'])) {
@@ -481,6 +489,18 @@ class Staff {
                 break;
             }
         }
+        if($this->isPreferredDay($user, $shift['start'])){
+            $tokens++;
+        }
+        if(isWeekend($shift['start'])){
+           $tokens--; 
+        }
+        $prefArray = $user['preferences']['shifts'];
+        $value = array_search($shift['shiftId'],$prefArray);
+        $prefCount = count($prefArray);
+        $prefEnd = $prefCount - $value;
+        $tokens = $tokens + $prefEnd;
+        $this->adjustTokensForUser($user, $tokens);
     }
 
     private function placeUsersInPreferredShifts() {
@@ -505,7 +525,9 @@ class Staff {
                     // If the user has requested the system to block shifts, loop 
                     // through the block at once and attempt to place the user 
                     // into the complete block
-                    if (($user['preferences']['block_days'] != null) && ($user['preferences']['block_days'] > 0)) {
+                    //get count of block
+                    $block = $this->isShiftBlockable($user, $nextShift);
+                    if ($block) {
                         // Place the user into the first day of the block series
                         // if circadian is met
                         if ($this->isCircadianMet($user, $nextShift)) {
@@ -514,23 +536,28 @@ class Staff {
 
                         // Loop through the next available shifts based on the number 
                         // of blockable shifts preferred by the user
-                        $nextShift2 = "";
-//                            for ($i = 0; $i < $user['preferences']['block_days']; $i++) {
-//								if ($nextShift2 == "") {
-//                                	$nextShift2 = $this->getNextShiftByDay($nextShift);
-//								} else {
-//									$nextShift2 = $this->getNextShiftByDay($nextShift2);
-//								}
-//                                if ($this->isCircadianMet($user, $nextShift2)) {
-//									
-//									echo "<br /><br />";
-//									echo "*** nextShift2 ***";
-//									print_r($nextShift2);
-//									echo "<br /><br />";
-//									
-//                                	$this->placeUserInShift($user, $nextShift2['id']);
-//                                }
-//                            }
+
+                        for ($i = 1; $i < $block; $i++) {
+                            echo $user['user_name'];
+                            $ucount = 0;
+                            $nextShift = $this->getNextShiftByDay($nextShift);
+                            if ($nextShift) {
+                                foreach ($nextShift['users'] as $u) {
+                                    $ucount++;
+                                }
+                                if ($nextShift['number'] > $ucount) {
+                                    if ($this->isCircadianMet($user, $nextShift)) {
+                                        if(date('w',strtotime($nextShift['start'])) != '6') {    
+                                        $this->placeUserInShift($user, $nextShift);
+                                        }else{
+                                            break;
+                                        }
+                                    }
+                                }
+                            } else {
+                                break;
+                            }
+                        }
                     } else {
                         // The user does not want their shifts blocked, so simply process 
                         // the single instance of the shift and user
@@ -592,8 +619,11 @@ class Staff {
     }
 
     public function staffSchedule() {
-        echo "In staffSchedule";
+		$this->sortUsersByPriority();
+                print_r($this->users);
         $this->placeUsersInPreferredShifts();
+        
+        
         // $this->placeUsersInRemainingShifts();
 
 
@@ -717,6 +747,119 @@ class Staff {
         }
         return $shift;
     }
+	
+	public function sortUsersByPriority() {
+		$tmpArr = array();
+		$tmpPrevVal = 0;
+		$count = $this->users;
+		
+		rsort($this->users);
+		
+		$priority = array();
+		foreach ($this->users as $key => $row)
+		{
+			$priority[$key] = $row['priority'];
+		}
+		array_multisort($priority, SORT_DESC, $this->users);
+		
+		$array5 = array();
+		$array4 = array();
+		$array3 = array();
+		$array2 = array();
+		$array1 = array();
+		
+		foreach($this->users as $user) {
+			$priorityNum = $user['priority'];
+			
+			switch($priorityNum) {
+				case "5":
+					array_push($array5, $user);
+					break;
+				case "4":
+					array_push($array4, $user);
+					break;
+				case "3":
+					array_push($array3, $user);
+					break;
+				case "2":
+					array_push($array2, $user);
+					break;
+				case "1":
+					array_push($array1, $user);
+					break;
+			}
+		}
+		
+		foreach($array5 as $user) {
+			$priority = array();
+			foreach ($array5 as $key => $row)
+			{
+				$priority[$key] = $row['tokens'];
+			}
+			array_multisort($priority, SORT_ASC, $array5);
+		}
+
+		foreach($array4 as $user) {
+			$priority = array();
+			foreach ($array4 as $key => $row)
+			{
+				$priority[$key] = $row['tokens'];
+			}
+			array_multisort($priority, SORT_ASC, $array4);
+		}
+
+		foreach($array3 as $user) {
+			$priority = array();
+			foreach ($array3 as $key => $row)
+			{
+				$priority[$key] = $row['tokens'];
+			}
+			array_multisort($priority, SORT_ASC, $array3);
+		}
+
+		foreach($array2 as $user) {
+			$priority = array();
+			foreach ($array2 as $key => $row)
+			{
+				$priority[$key] = $row['tokens'];
+			}
+			array_multisort($priority, SORT_ASC, $array2);
+		}
+
+		foreach($array1 as $user) {
+			$priority = array();
+			foreach ($array1 as $key => $row)
+			{
+				$priority[$key] = $row['tokens'];
+			}
+			array_multisort($priority, SORT_ASC, $array1);
+		}
+		
+		
+		$newArray = array();
+		
+		foreach($array5 as $user) {
+			array_push($newArray, $user);
+		}
+		
+		foreach($array4 as $user) {
+			array_push($newArray, $user);
+		}
+		
+		foreach($array3 as $user) {
+			array_push($newArray, $user);
+		}
+		
+		foreach($array2 as $user) {
+			array_push($newArray, $user);
+		}
+		
+		foreach($array1 as $user) {
+			array_push($newArray, $user);
+		}
+		
+		$this->users = $newArray;
+	}
 
 }
 

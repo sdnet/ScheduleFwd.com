@@ -1194,15 +1194,13 @@ function getNextDayShiftId($groupcode, $day, $shiftname, $schedule) {
 
 function getNextDayShift($groupcode, $date, $shiftId, $schedule) {
     $retShift = false;
-    $nextday = strtotime(date("Y-m-d", strtotime($date)) . " +1 day");
-    if ($schedule) {
+    $nextday = strtotime($date . " +1 day");
         foreach ($schedule as $shift) {
-            if ((date('Y-m-d', $nextday) == date('Y-m-d', strtotime($shift['start']))) && ($shift['shiftId'] == $shiftId)) {
+            if (($nextday == strtotime($shift['start'])) && ($shift['shiftId'] == $shiftId)) {
                 $retShift = $shift;
+                break;
             }
         }
-    }
-
     return $retShift;
 }
 
