@@ -254,11 +254,7 @@ class Staff {
         $shiftId = $scheduleShift['shiftId'];
         $date = $this->getDateFromFullDateString($scheduleShift['start']);
 
-		$date2 = explode("-",$date);
-		$month = $date2[1];
-		$year = $date2[2];
-
-        if (isTimeoffRequestedByUserIdAndShiftId($this->groupcode, $userId, $date, $month, $year, $shiftId)) {
+        if (isTimeoffRequestedByUserIdAndShiftId($this->groupcode, $userId, $date, $this->month, $this->year, $shiftId)) {
             $ret = true;
         }
 
@@ -485,7 +481,7 @@ class Staff {
 				echo " *********************************<br /><br />";
 
                 // Gets the next instance of the user-preferred shift
-                $nextShift = $this->getFirstAvailableShift($shift);
+                $nextShift = $this->getFirstAvailableShift($shift['shiftId']);
 				
 				echo "<br /><br />";
 				echo " ********** nextShift *********** <br />";

@@ -1249,7 +1249,7 @@ function getPreviousShiftWorked($schedule, $userId, $shiftId) {
 
 function getNextShiftWorked($schedule, $userId, $shiftId) {
     $retShift = false;
-    for ($i = count($schedule); $i > $shiftId; $i--) {
+    for ($i = count($schedule)-1; $i > $shiftId; $i--) {
         if (in_array($userId, $schedule[$i]['users'])) {
             $retShift = $schedule[$i];
         }
@@ -1260,7 +1260,7 @@ function getNextShiftWorked($schedule, $userId, $shiftId) {
 //Gets the next available shift after the current shift
 function getNextAvailableShift($schedule, $shiftId) {
     $retShift = false;
-    for ($i = count($schedule); $i > $shiftId; $i--) {
+    for ($i = count($schedule)-1; $i > $shiftId; $i--) {
         if ($schedule[$i]['number'] < count($schedule[$i]['users'])) {
             $retShift = $schedule[$i];
         }
@@ -1271,8 +1271,8 @@ function getNextAvailableShift($schedule, $shiftId) {
 //Get first available shift by template shiftId
 function getFirstAvailableShift($schedule, $shiftId) {
     $retShift = false;
-    for ($i = 0; $i <= count($schedule); $i++) {
-        if (($schedule[$i]['number'] < count($schedule[$i]['users'])) && ($schedule[i]['shiftId'] == $shiftId)){
+    for ($i = 0; $i <= count($schedule)-1; $i++) {
+        if (($schedule[$i]['number'] < count($schedule[$i]['users'])) && ($schedule[$i]['shiftId'] == $shiftId)){
             $retShift = $schedule[$i];
             break;
         }
