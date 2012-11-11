@@ -1271,8 +1271,8 @@ function getNextAvailableShift($schedule, $shiftId) {
 //Get first available shift by template shiftId
 function getFirstAvailableShift($schedule, $shiftId) {
     $retShift = false;
-    for ($i = count($schedule); $i < $shiftId; $i++) {
-        if ($schedule[$i]['number'] < count($schedule[$i]['users'])) {
+    for ($i = 0; $i <= count($schedule); $i++) {
+        if (($schedule[$i]['number'] < count($schedule[$i]['users'])) && ($schedule[i]['shiftId'] == $shiftId)){
             $retShift = $schedule[$i];
             break;
         }
