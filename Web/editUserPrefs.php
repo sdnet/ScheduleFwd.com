@@ -101,7 +101,7 @@
 				// Get the checked shift values for preferences
 				var shifts = "";
 				$('.ui-state-default').each(function(index) {
-					shifts = shifts + "" + $(this).html() + ",";
+					shifts = shifts + "" + $(this).attr('shiftId') + ",";
 				});
 				shifts = shifts.substring(0,shifts.length-1);
 				

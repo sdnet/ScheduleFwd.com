@@ -243,10 +243,17 @@ class Staff {
     }
 
     private function timeOffExistsForUser($user, $scheduleShift) {
+		
+		echo "<br /><br />";
+		echo " ********** timeOffExistsForUser *********** <br />";
+		echo " scheduleShift: " . $scheduleShift . "<br />";
+		echo " *********************************<br /><br />";
+		
         $ret = false;
         $userId = $this->db->_id($user['_id']);
         $shiftId = $scheduleShift['shiftId'];
         $date = $this->getDateFromFullDateString($scheduleShift['start']);
+
 		$date2 = explode("-",$date);
 		$month = $date2[1];
 		$year = $date2[2];
@@ -473,9 +480,19 @@ class Staff {
                 // Gets the user's preferred shift
                 $shift = $this->getUsersPreferredShift($user);
 
+				echo "<br /><br />";
+				echo " ********** shift *********** <br />";
+				echo " Preferred Shift: " . $shift . "<br />";
+				echo " *********************************<br /><br />";
+
                 // Gets the next instance of the user-preferred shift
                 $nextShift = $this->getFirstAvailableShift($shift);
-
+				
+				echo "<br /><br />";
+				echo " ********** nextShift *********** <br />";
+				echo $nextShift;
+				echo " *********************************<br /><br />";
+				
                 // Unless the user has requested this shift off, process
                 if (!$this->timeOffExistsForUser($user, $nextShift)) {
 
