@@ -21,7 +21,9 @@ if(VerifySession($sessionId,$groupcode,$userId,'Admin') == true){
 			$message =  "emptyFields";
 	} else {
 		if($year != null && $month != null){
-			$args = array('col' => "$groupcode", 'type' => 'schedule', 'where' => array('month' => ''.$month.'', 'year' => ''.$year.''));
+                     $tmonth = sprintf("%02s", $month);
+                     $tyear = sprintf("%02s", $year);
+			$args = array('col' => "$groupcode", 'type' => 'schedule', 'where' => array('month' => ''.$tmonth.'', 'year' => ''.$tyear.''));
 		}else{
 			$args = array('col' => "$groupcode", 'id' => $scheduleId, 'type' => 'schedule');
 		}
@@ -37,6 +39,7 @@ if(VerifySession($sessionId,$groupcode,$userId,'Admin') == true){
 		$staff->getGroups();
 		$staff->getUsers();
 		$staff->staffSchedule();
+                $staff->updateSchedule();
 		
 			$message = "success";
 	}				

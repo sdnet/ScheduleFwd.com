@@ -1209,7 +1209,6 @@ function getNextDayShift($groupcode, $date, $shiftId, $schedule) {
 function getWeekendCountForUser($groupcode, $userId, $month, $year) {
     $time = date("Y-m-d H:i:s", strtotime('' . $year . '-' . $month . '-01'));
     $schedules = getUserSchedule($userId, $groupcode, 2, 'previous', $time);
-    print_r($schedules);
     $weekendcount = 0;
     foreach ($schedules as $schedule) {
         foreach ($schedule['schedule'] as $shift) {
