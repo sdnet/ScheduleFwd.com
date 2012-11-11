@@ -339,8 +339,7 @@ class Staff {
     }
 
     private function getFirstAvailableShift($shiftId) {
-		$shift = getFirstAvailableShift($this->schedule, $shiftId);
-        return $shift;
+        return getFirstAvailableShift($this->schedule, $shiftId);
     }
 
     private function isPreferredDay($user, $date) {
@@ -477,17 +476,17 @@ class Staff {
                 $shift = $this->getUsersPreferredShift($user);
 
 				echo "<br /><br />";
-				echo " ************** shift ************** <br />";
+				echo " ********** shift *********** <br />";
 				echo " Preferred Shift: " . $shift . "<br />";
-				echo " *******************************<br /><br />";
+				echo " *********************************<br /><br />";
 
                 // Gets the next instance of the user-preferred shift
                 $nextShift = $this->getFirstAvailableShift($shift['shiftId']);
 				
 				echo "<br /><br />";
-				echo " ************** nextShift ************** <br />";
-				echo " nextShift: " . $nextShift . "<br />";
-				echo " *******************************<br /><br />";
+				echo " ********** nextShift *********** <br />";
+				print_r($nextShift);
+				echo " *********************************<br /><br />";
 				
                 // Unless the user has requested this shift off, process
                 if (!$this->timeOffExistsForUser($user, $nextShift)) {
