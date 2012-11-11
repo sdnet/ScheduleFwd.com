@@ -439,7 +439,7 @@ function getTimeOffByUserId($groupcode, $userId, $month = null, $year = null) {
 }
 
 function isTimeoffRequestedByUserIdAndShiftId($groupcode, $userId, $date, $month, $year, $shiftId) {
-	$ret = false;
+    $ret = false;
     $db = new MONGORILLA_DB;
     $where = array('year' => $year, 'month' => $month, 'time_off' => array('$in' => array($date => $shiftId)), 'userId' => $userId, 'active' => 'Approved');
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
@@ -447,8 +447,8 @@ function isTimeoffRequestedByUserIdAndShiftId($groupcode, $userId, $date, $month
     if ($result != null) {
         $ret = true;
     }
-	
-	return $ret;
+
+    return $ret;
 }
 
 function getShiftsByUserId($groupcode, $userId) {
@@ -1192,8 +1192,8 @@ function getNextDayShiftId($groupcode, $day, $shiftname, $schedule) {
     return $shiftId;
 }
 
-function getNextDayShift($groupcode, $date, $shiftname, $schedule) {
-
+function getNextDayShift($groupcode, $date, $shiftId, $schedule) {
+    $retShift = false;
     $nextday = strtotime(date("Y-m-d", strtotime($date)) . " +1 day");
     if ($schedule) {
         foreach ($schedule as $shift) {
@@ -1240,7 +1240,11 @@ function getNightCountForUser($groupcode, $userId, $month, $year) {
 function getPreviousShiftWorked($schedule, $userId, $shiftId) {
     $retShift = false;
     for ($i = 0; $i < $shiftId; $i++) {
-        if (in_array($userId, $schedule[$i]['users'])) {
+        $userList = $schedule[$i]['users'];
+        if (empty($schedule[$i]['users'])) {
+            $userList = array();
+        }
+        if (in_array($userId, $userList)) {
             $retShift = $schedule[$i];
         }
     }
@@ -1249,8 +1253,12 @@ function getPreviousShiftWorked($schedule, $userId, $shiftId) {
 
 function getNextShiftWorked($schedule, $userId, $shiftId) {
     $retShift = false;
-    for ($i = count($schedule)-1; $i > $shiftId; $i--) {
-        if (in_array($userId, $schedule[$i]['users'])) {
+    for ($i = count($schedule) - 1; $i > $shiftId; $i--) {
+        $userList = $schedule[$i]['users'];
+        if (empty($schedule[$i]['users'])) {
+            $userList = array();
+        }
+        if (in_array($userId, $userList)) {
             $retShift = $schedule[$i];
         }
     }
@@ -1260,7 +1268,7 @@ function getNextShiftWorked($schedule, $userId, $shiftId) {
 //Gets the next available shift after the current shift
 function getNextAvailableShift($schedule, $shiftId) {
     $retShift = false;
-    for ($i = count($schedule)-1; $i > $shiftId; $i--) {
+    for ($i = count($schedule) - 1; $i > $shiftId; $i--) {
         if ($schedule[$i]['number'] < count($schedule[$i]['users'])) {
             $retShift = $schedule[$i];
         }
@@ -1271,12 +1279,27 @@ function getNextAvailableShift($schedule, $shiftId) {
 //Get first available shift by template shiftId
 function getFirstAvailableShift($schedule, $shiftId) {
     $retShift = false;
-    for ($i = 0; $i <= count($schedule)-1; $i++) {
-        if (($schedule[$i]['number'] < count($schedule[$i]['users'])) && ($schedule[$i]['shiftId'] == $shiftId)){
-            $retShift = $schedule[$i];
-            break;
+    echo $shiftId;
+    echo "<br />";
+
+    for ($i = 0; $i <= count($schedule) - 1; $i++) {
+        $usercount = 0;
+        if (($schedule[$i]['shiftId'] == $shiftId)) {
+            $userList = $schedule[$i]['users'];
+            if (empty($schedule[$i]['users'])) {
+                $userList = array();
+            }
+
+            foreach ($userList as $user) {
+                $usercount++;
+            }
+            if (($schedule[$i]['number'] > $usercount)) {
+                $retShift = $schedule[$i];
+                break;
+            }
         }
     }
     return $retShift;
 }
+
 ?>

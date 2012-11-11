@@ -32,6 +32,11 @@ class Staff {
         $schedule = $result[0]['schedule'];
         foreach ($schedule as $shift) {
             $key = $shift['id'];
+            $t1 = new DateTime($shift['start']);
+            $t2 = new DateTime($shift['endreal']);
+            $t3 = date_diff($t1, $t2);
+            $duration = $t3->h;
+            $shift['duration'] = $duration;
             $final[$key] = $shift;
         }
         $this->schedule = $final;
@@ -64,7 +69,7 @@ class Staff {
             $weekendcount = getWeekendCountForUser($this->groupcode, $userId, $this->month, $this->year);
             $arr = array_merge(array('weight' => 1, 'timeoffs' => $timeoffs, 'nightcount' => $nightcount, 'weekendcount' => $weekendcount), $result);
 
-            
+
             $minhour = $result['min_hours'];
             $maxhour = $result['max_hours'];
             if ($minhour == null || $maxhour == null) {
@@ -243,12 +248,12 @@ class Staff {
     }
 
     private function timeOffExistsForUser($user, $scheduleShift) {
-		
-		echo "<br /><br />";
-		echo " ********** timeOffExistsForUser *********** <br />";
-		echo " scheduleShift: " . $scheduleShift . "<br />";
-		echo " *********************************<br /><br />";
-		
+
+        echo "<br /><br />";
+        echo " ********** timeOffExistsForUser *********** <br />";
+        echo " scheduleShift: " . $scheduleShift . "<br />";
+        echo " *********************************<br /><br />";
+
         $ret = false;
         $userId = $this->db->_id($user['_id']);
         $shiftId = $scheduleShift['shiftId'];
@@ -316,10 +321,10 @@ class Staff {
         return $ret;
     }
 
-    private function isUserOverMax($user) {
+    private function isUserOverMax($user,$shift) {
         $ret = false;
         $userId = $user['id'];
-        $hours = $user['hours'];
+        $hours = $user['hours'] + (int)$shift['duration'];
         $userMaxHours = getUserMinHours($this->groupcode, $userId);
 
         if ($hours > $userMaxHours) {
@@ -475,24 +480,24 @@ class Staff {
                 // Gets the user's preferred shift
                 $shift = $this->getUsersPreferredShift($user);
 
-				echo "<br /><br />";
-				echo " ********** shift *********** <br />";
-				echo " Preferred Shift: " . $shift . "<br />";
-				echo " *********************************<br /><br />";
+                echo "<br /><br />";
+                echo " ********** shift *********** <br />";
+                echo " Preferred Shift: " . $shift . "<br />";
+                echo " *********************************<br /><br />";
 
                 // Gets the next instance of the user-preferred shift
                 $nextShift = $this->getFirstAvailableShift($shift['shiftId']);
-				
-				echo "<br /><br />";
-				echo " ********** nextShift *********** <br />";
-				print_r($nextShift);
-				echo " *********************************<br /><br />";
-				
+
+                echo "<br /><br />";
+                echo " ********** nextShift *********** <br />";
+                print_r($nextShift);
+                echo " *********************************<br /><br />";
+
                 // Unless the user has requested this shift off, process
                 if (!$this->timeOffExistsForUser($user, $nextShift)) {
 
                     // If user has worked their max monthly hours, break
-                    if (!$this->isUserOverMax($user)) {
+                    if (!$this->isUserOverMax($user,$nextShift)) {
 
                         // If the user has requested the system to block shifts, loop 
                         // through the block at once and attempt to place the user 
@@ -525,9 +530,8 @@ class Staff {
                         } //end if ($this->isShiftBlockable($shift)
                     }// end if (!$this->isUserOverMax($user)
                 } // end if (!$this->timeOffExistsForUser($user,$shift))
-				
-				$canUserTakeShift = true;
-				
+
+                $canUserTakeShift = true;
             } // end while
         } // end foreach	
     }
@@ -579,7 +583,7 @@ class Staff {
     }
 
     public function staffSchedule() {
-		echo "In staffSchedule";
+        echo "In staffSchedule";
         $this->placeUsersInPreferredShifts();
         // $this->placeUsersInRemainingShifts();
 
