@@ -52,9 +52,11 @@ class Staff {
             $userId = $this->db->_id($result['_id']);
             $timeoffrequests = getTimeOffByUserId($this->groupcode, $userId, $this->month, $this->year);
             $timeoffs = array();
-            foreach ($timeoffrequests as $key => $timeoff) {
-                foreach ($timeoff['time_off'] as $k => $v) {
-                    $timeoffs[] = array('granted' => 0, 'date' => $k, 'shiftId' => $v);
+            if ($timeoffrequests != null) {
+                foreach ($timeoffrequests as $key => $timeoff) {
+                    foreach ($timeoff['time_off'] as $k => $v) {
+                        $timeoffs[] = array('granted' => 0, 'date' => $k, 'shiftId' => $v);
+                    }
                 }
             }
             $nightcount = getNightCountForUser($this->groupcode, $userId, $this->month, $this->year);
@@ -402,7 +404,7 @@ class Staff {
     private function getUsersByShiftPreference($shift) {
         $users = array();
         $shiftId = $shift['shiftId'];
-        foreach($this->users as $user){
+        foreach ($this->users as $user) {
             $key = array_search($shiftId, $user['preferences']['shifts']);
             $users[$this->db->_id($user['id'])] = $key;
         }
