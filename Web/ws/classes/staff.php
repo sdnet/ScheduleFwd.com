@@ -549,7 +549,7 @@ class Staff {
 
     public function staffSchedule() {
         $this->placeUsersInPreferredShifts();
-        $this->placeUsersInRemainingShifts();
+        // $this->placeUsersInRemainingShifts();
 
 
 
