@@ -465,8 +465,17 @@ class Staff {
         return $ret;
     }
 
-    private function placeUserInShift($user, $shiftId) {
-        $this->schedule[$shiftId]['users'][] = array('first_name' => $user['first_name'], 'last_name' => $user['last_name'], 'user_name' => $user['user_name'], 'id' => $this->db->_id($user['_id']));
+    private function placeUserInShift($user, $shift) {
+        $this->schedule[$shift['id']]['users'][] = array('first_name' => $user['first_name'], 'last_name' => $user['last_name'], 'user_name' => $user['user_name'], 'id' => $this->db->_id($user['_id']));
+        foreach($this->users as $us){
+            if($this->db->_id($user['_id']) == $this->db->_id($us['_id'])){
+                $hours = $us['hours'];
+                $newhours = $hours + $shift['duration'];
+                $us['hours'] = $newhours;
+                $this->users[$us];
+                break;
+            }
+        }
     }
 
     private function placeUsersInPreferredShifts() {
