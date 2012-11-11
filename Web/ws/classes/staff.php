@@ -64,7 +64,10 @@ class Staff {
             $weekendcount = getWeekendCountForUser($this->groupcode, $userId, $this->month, $this->year);
             $arr = array_merge(array('weight' => 1, 'timeoffs' => $timeoffs, 'nightcount' => $nightcount, 'weekendcount' => $weekendcount), $result);
 
-            if ($result['min_hours'] == null || $result['max_hours'] == null) {
+            
+            $minhour = $result['min_hours'];
+            $maxhour = $result['max_hours'];
+            if ($minhour == null || $maxhour == null) {
                 foreach ($this->groups as $group) {
                     if ($group['name'] == $result['group']) {
                         $min = $group['min_hours'];
