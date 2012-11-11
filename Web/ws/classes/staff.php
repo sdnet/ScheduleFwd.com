@@ -400,7 +400,14 @@ class Staff {
     }
 
     private function getUsersByShiftPreference($shift) {
-        
+        $users = array();
+        $shiftId = $shift['shiftId'];
+        foreach($this->users as $user){
+            $key = array_search($shiftId, $user['preferences']['shifts']);
+            $users[$this->db->_id($user['id'])] = $key;
+        }
+        sort($users);
+        return $users;
     }
 
     private function getShiftsByUser($user) {
