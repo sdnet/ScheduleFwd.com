@@ -342,8 +342,7 @@ class Staff {
         return getNextAvailableShift($this->schedule, $shiftId);
     }
 
-    private function getFirstAvailableShift($shift) {
-        $shiftId = $shift['shiftId'];
+    private function getFirstAvailableShift($shiftId) {
         return getFirstAvailableShift($this->schedule, $shiftId);
     }
 
