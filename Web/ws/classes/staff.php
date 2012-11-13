@@ -6,7 +6,7 @@ ini_set('display_errors', '1');
 //require('rulesEngine.php');
 require_once('' . $_SERVER['DOCUMENT_ROOT'] . '/core/mg_base.class.php');
 require_once('' . $_SERVER['DOCUMENT_ROOT'] . '/ws/functions.php');
-ini_set("max_execution_time", "900");
+ini_set("max_execution_time", "9000");
 
 class Staff {
 
@@ -18,6 +18,8 @@ class Staff {
     public $groups;
     public $year;
     public $month;
+    public $scheduleDays;
+    public $openShifts = 0;
 
     public function __construct($grp, $id) {
         $this->db = new MONGORILLA_DB;
@@ -26,19 +28,64 @@ class Staff {
     }
 
     public function getSchedule() {
+        $arg = array('col' => $this->groupcode, 'type' => 'tempShift', 'where' => array());
+        $results = $this->db->delete($arg);
         $final = array();
+        $this->prevShifts = array();
         $arg = array('col' => $this->groupcode, 'type' => 'schedule', 'id' => $this->scheduleId);
         $result = $this->db->find($arg);
         $schedule = $result[0]['schedule'];
-        foreach ($schedule as $shift) {
+        $this->year = $result[0]['year'];
+        $this->month = $result[0]['month'];
+        $lastday = date("t", strtotime($this->month . "/01/" . $this->year . " -1 month"));
+        $lastmonth = date("m", strtotime($this->month . "/01/" . $this->year . " -1 month"));
+        $lastyear = date("m", strtotime($this->month . "/01/" . $this->year . " -1 month"));
+
+        $where = array('month' => $lastmonth, 'year' => $lastyear);
+        $arg = array('col' => $this->groupcode, 'type' => 'schedule', 'where' => $where);
+        $lresult = $this->db->find($arg);
+        if ($lresult != null) {
+            foreach ($lresult[0]['schedule'] as $shift) {
+                if ($lastday == date("d", strtotime($shift['start']))) {
+                    $shift['day'] = '0';
+                    $final[$key] = $shift;
+                    $shift['start'] = new MongoDate(strtotime($shift['start']));
+                    $shift['endreal'] = new MongoDate(strtotime($shift['endreal']));
+                    $arg = array('col' => $this->groupcode, 'type' => 'tempShift', 'obj' => $shift);
+                    $results = $this->db->upsert($arg);
+                }
+            }
+        }
+        $key = 0;
+        foreach ($schedule as $t => $shift) {
             $key = $shift['id'];
             $t1 = new DateTime($shift['start']);
             $t2 = new DateTime($shift['endreal']);
             $t3 = date_diff($t1, $t2);
-            $duration = $t3->h;
+            $duration = $t3->m;
             $shift['duration'] = $duration;
+            $shift['day'] = date('d', strtotime($shift['start']));
             $final[$key] = $shift;
+            $start = $shift['start'];
+            $end = $shift['end'];
+            $shift['dayName'] = date('l',strtotime($shift['start']));
+            $shift['weekend'] = isWeekend($start);
+            $shift['night'] = isNight($start,$end);
+            $shift['start'] = new MongoDate(strtotime($shift['start']));
+            $shift['endreal'] = new MongoDate(strtotime($shift['endreal']));
+            $shift['timeoffs'] = array();
+            $where = array('time_off' => array('' . date('Y-m-d', strtotime($start)) . '' => $shift['shiftId']), 'year' => '' . $this->year . '', 'month' => '' . $this->month . '', 'status' => array('$ne' => 'Disapproved'));
+            $arg = array('col' => $this->groupcode, 'type' => 'timeoff', 'where' => $where);
+            $tresults = $this->db->find($arg);
+            if ($tresults != null) {
+                foreach ($tresults as $timeoff) {
+                    $shift['timeoffs'][] = $timeoff['userId'];
+                }
+            }
+            $arg = array('col' => $this->groupcode, 'type' => 'tempShift', 'obj' => $shift);
+            $results = $this->db->upsert($arg);
         }
+        $this->openShifts = $key;
         $this->schedule = $final;
         $this->year = $result[0]['year'];
         $this->month = $result[0]['month'];
@@ -50,6 +97,7 @@ class Staff {
     }
 
     public function getUsers() {
+        $nightReq = getConfig($this->groupcode, 'maxNightsPerMonth');
         $arg = array('col' => $this->groupcode, 'type' => 'user', 'where' => array('active' => 1));
         $results = $this->db->find($arg);
 
@@ -66,17 +114,16 @@ class Staff {
                     if ($timeoff['priority'] == '1') {
                         $tokens++;
                     }
-                        $tokens++;
-                    
+                    $tokens++;
                 }
             }
             $nightcount = getNightCountForUser($this->groupcode, $userId, $this->month, $this->year);
             $weekendcount = getWeekendCountForUser($this->groupcode, $userId, $this->month, $this->year);
-            $arr = array_merge(array('tokens' => $tokens, 'timeoffs' => $timeoffs, 'nightcount' => $nightcount, 'weekendcount' => $weekendcount), $result);
+            
 
 
-            $minhour = $result['min_hours'];
-            $maxhour = $result['max_hours'];
+            $min = $result['min_hours'];
+            $max = $result['max_hours'];
             if ($minhour == null || $maxhour == null) {
                 foreach ($this->groups as $group) {
                     if ($group['name'] == $result['group']) {
@@ -84,8 +131,8 @@ class Staff {
                         $max = $group['max_hours'];
                     }
                 }
-                $arr = array_merge(array('min_hours' => $min, 'max_hours' => $max, 'hours' => 0), $arr);
             }
+            $arr = array_merge(array('min_hours' => $min*60, 'max_hours' => $max*60, 'hours' => 0, 'night_hours' => (((int)$nightReq)/60), 'tokens' => $tokens, 'timeoffs' => $timeoffs, 'nightcount' => $nightcount, 'weekendcount' => $weekendcount), $result);
             $userArray[] = $arr;
         }
 
@@ -254,32 +301,40 @@ class Staff {
 
     private function timeOffExistsForUser($user, $scheduleShift) {
         $ret = false;
-        $userId = $this->db->_id($user['_id']);
+        $timeOffs = $user['timeoffs'];
         $shiftId = $scheduleShift['shiftId'];
-        $date = $this->getDateFromFullDateString($scheduleShift['start']);
-
-        if (isTimeoffRequestedByUserIdAndShiftId($this->groupcode, $userId, $date, $this->month, $this->year, $shiftId)) {
-            $ret = true;
+        $date = date('Y-m-d', strtotime($scheduleShift['start']));
+        if ($timeOffs) {
+            foreach ($timeOffs as $timeoff) {
+                if (($date == $timeoff['date']) && ($timeoff['shiftId'] == $shiftId)) {
+                    $ret = true;
+                    break;
+                }
+            }
         }
 
         return $ret;
     }
 
     private function isCircadianMet($user, $shift) {
-        $prevShift = getPreviousShiftWorked($this->schedule, $this->db->_id($user['_id']), $shift['id']);
-        $nextShift = getNextShiftWorked($this->schedule, $this->db->_id($user['_id']), $shift['id']);
-        if ($prevShift && $nextShift) {
-            $start = strtotime($shift['start']);
-            $end = strtotime($shift['endreal']);
-            $prevEnd = strtotime($prevShift['endreal'] . '+ 24 hours');
-            $nextStart = strtotime($nextShift['start'] . '- 24 hours');
-            if ($nextShift == null) {
-                $nextStart = strtotime($this->year . ' + 1 year');
-            }
-            if ($start < $prevEnd && $end > $nextStart) {
-                return true;
+        if ($user['preferences']['circadian'] == '1') {
+            $prevShift = getPreviousShiftWorked($this->schedule, $this->db->_id($user['_id']), $shift['id']);
+            $nextShift = getNextShiftWorked($this->schedule, $this->db->_id($user['_id']), $shift['id']);
+            if ($prevShift && $nextShift) {
+                $start = strtotime($shift['start']);
+                $end = strtotime($shift['endreal']);
+                $prevEnd = strtotime($prevShift['endreal'] . '+ 24 hours');
+                $nextStart = strtotime($nextShift['start'] . '- 24 hours');
+                if ($nextShift == null) {
+                    $nextStart = strtotime($this->year . ' + 1 year');
+                }
+                if ($start < $prevEnd && $end > $nextStart) {
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
-                return false;
+                return true;
             }
         } else {
             return true;
@@ -346,8 +401,8 @@ class Staff {
         return getNextAvailableShift($this->schedule, $shiftId);
     }
 
-    private function getFirstAvailableShift($shiftId) {
-        return getFirstAvailableShift($this->schedule, $shiftId);
+    private function getFirstAvailableShift($user, $shiftId, $offset = 0, $weekend = false) {
+        return getFirstAvailableShift($user, $this->schedule, $shiftId, $offset, $weekend);
     }
 
     private function isPreferredDay($user, $date) {
@@ -426,7 +481,7 @@ class Staff {
         return $blockable;
     }
 
-    private function getUsersByShiftPreference($shift) {
+    private function getUsersByShiftPreference($shift, $offset = 0) {
         $users = array();
         $shiftId = $shift['shiftId'];
         foreach ($this->users as $user) {
@@ -444,7 +499,7 @@ class Staff {
 
     private function adjustTokensForUser($user, $tokens) {
         foreach ($this->users as $key => $vUser) {
-            if ($vUser['username'] == $user['username']) {
+            if ($vUser['user_name'] == $user['user_name']) {
                 $tokensum = $tokens + $vUser['tokens'];
                 $this->users[$key]['tokens'] = $tokensum;
                 return true;
@@ -465,21 +520,86 @@ class Staff {
      */
 
     private function getUsersPreferredShift($user, $offset = 0) {
-        $ret = "";
+        $ret = null;
 
         // Get the shift preference from the user document and return it, if exists
         $preferredShiftName = $user['preferences']['shifts'][$offset];
-        if ($preferredShiftName != "") {
+        if ($preferredShiftName != null) {
             $ret = $preferredShiftName;
+        } else {
+            $ret = getFirstAvailable($this->schedule);
         }
-
         return $ret;
+    }
+
+    private function getNumOfSlotsOpenForShift($shift) {
+        $count = 0;
+        $userCount = 0;
+        $number = $currShift['number'];
+        $shiftId = $shift['id'];
+        $currShift = $schedule[$shiftId];
+        foreach ($currShift['users'] as $key => $user) {
+            $userCount++;
+        }
+        $count = (int) $number - (int) $userCount;
+        return $count;
+    }
+
+    private function countOpenShifts() {
+        $count = 0;
+        foreach ($this->schedule as $shift) {
+            $userCount = $shift['number'];
+            $presentCount = 0;
+            foreach ($shift['users'] as $user) {
+                $presentCount++;
+            }
+            $difference = $userCount - $presentCount;
+            $count = $count + $difference;
+        }
+        return $count;
+    }
+    
+    private function canWork($user,$shift){
+        
+        
+    }
+    
+    private function queryShift($user, $weekend = false, $night = false){
+        
+        $where = array('shiftId' => $shiftId, 'timeoffs' => array('$nin' => $this->db->_id($user['_id'])),'number' => array('$gt' => 0), 'day' => array('$ne' => '0'), 'groups' => array('$in' => array($user['group'])));
+        if($weekend){
+            $where['weekend'] = true;
+        }
+        if($night){
+            $where['night'] = true;
+        }
+        $arg = array('col' => $this->groupcode, 'type' => 'tempShift', 'where' => $where);
+        $results = $this->db->find($arg);
+        return $results[0];
+        
+    }
+
+    private function getShift($shiftId) {
+        $arg = array('col' => $this->groupcode, 'type' => 'tempShift', 'where' => array('id' => $shiftId, 'day' => array('$ne' => '0')));
+        $results = $this->db->find($arg);
+        return $results[0];
+    }
+
+    private function setShift($shift) {
+        $number = $shift['number'];
+        $number--;
+        $shift['number'] = $number;
+        $arg = array('col' => $this->groupcode, 'type' => 'tempShift', 'id' => $this->db->_id($shift['_id']), 'obj' => $shift);
+        $results = $this->db->upsert($arg);
+        return $results;
     }
 
     private function placeUserInShift($user, $shift) {
         $shiftId = $shift['id'];
         $tokens = 0;
-        $this->schedule[$shiftId]['users'][] = array('first_name' => $user['first_name'], 'last_name' => $user['last_name'], 'user_name' => $user['user_name'], 'id' => $this->db->_id($user['_id']));
+        $newShift = $this->getShift($shift['id']);
+        $newShift['users'][] = array('first_name' => $user['first_name'], 'last_name' => $user['last_name'], 'user_name' => $user['user_name'], 'id' => $this->db->_id($user['_id']));
+        $update = $this->setShift($newShift);
         foreach ($this->users as $key => $us) {
             if ($this->db->_id($user['_id']) == $this->db->_id($us['_id'])) {
                 $hours = $us['hours'];
@@ -489,142 +609,273 @@ class Staff {
                 break;
             }
         }
-        if($this->isPreferredDay($user, $shift['start'])){
+        if ($this->isPreferredDay($user, $shift['start'])) {
             $tokens++;
         }
-        if(isWeekend($shift['start'])){
-           $tokens--; 
+        if (isWeekend($shift['start'])) {
+            $tokens--;
         }
         $prefArray = $user['preferences']['shifts'];
-        $value = array_search($shift['shiftId'],$prefArray);
+        $value = array_search($shift['shiftId'], $prefArray);
         $prefCount = count($prefArray);
         $prefEnd = $prefCount - $value;
         $tokens = $tokens + $prefEnd;
         $this->adjustTokensForUser($user, $tokens);
+        $openshifts = $this->openShifts;
+        $openshifts--;
+        $this->openShifts = $openshifts;
     }
 
     private function placeUsersInPreferredShifts() {
         foreach ($this->users as $user) {
             $canUserTakeShift = false;
-
+            $pass = 0;
+            $prefCount = 0;
+            foreach ($user['preferences']['shifts'] as $prefshift) {
+                $prefCount++;
+            }
             // Continue looping through shifts until a shift is found that matches a 
             // user preference and the user can work it
-            // while ($canUserTakeShift == false) {
-            // Gets the user's preferred shift
-            $shiftId = $this->getUsersPreferredShift($user);
+            while ($canUserTakeShift == false) {
+                // Gets the user's preferred shift
+                $shiftId = $this->getUsersPreferredShift($user, $pass);
+                $goodshift = false;
+                $shiftpass = 0;
+                while ($goodshift == false) {
+                    // Gets the next instance of the user-preferred shift
+                    $nextShift = $this->getFirstAvailableShift($user, $shiftId, $shiftpass, 5);
 
-            // Gets the next instance of the user-preferred shift
-            $nextShift = $this->getFirstAvailableShift($shiftId);
+                    if (!$nextShift) {
+                        break;
+                    }
+                    // Unless the user has requested this shift off, process
+                    if (!$this->timeOffExistsForUser($user, $nextShift)) {
+                        $goodshift = true;
+                        // If user has worked their max monthly hours, break
+                        if (!$this->isUserOverMax($user, $nextShift)) {
 
-            // Unless the user has requested this shift off, process
-            if (!$this->timeOffExistsForUser($user, $nextShift)) {
-
-                // If user has worked their max monthly hours, break
-                if (!$this->isUserOverMax($user, $nextShift)) {
-
-                    // If the user has requested the system to block shifts, loop 
-                    // through the block at once and attempt to place the user 
-                    // into the complete block
-                    //get count of block
-                    $block = $this->isShiftBlockable($user, $nextShift);
-                    if ($block) {
-                        // Place the user into the first day of the block series
-                        // if circadian is met
-                        if ($this->isCircadianMet($user, $nextShift)) {
-                            $this->placeUserInShift($user, $nextShift);
-                        }
-
-                        // Loop through the next available shifts based on the number 
-                        // of blockable shifts preferred by the user
-
-                        for ($i = 1; $i < $block; $i++) {
-                            echo $user['user_name'];
-                            $ucount = 0;
-                            $nextShift = $this->getNextShiftByDay($nextShift);
-                            if ($nextShift) {
-                                foreach ($nextShift['users'] as $u) {
-                                    $ucount++;
+                            // If the user has requested the system to block shifts, loop 
+                            // through the block at once and attempt to place the user 
+                            // into the complete block
+                            //get count of block
+                            $block = $this->isShiftBlockable($user, $nextShift);
+                            if ($block) {
+                                // Place the user into the first day of the block series
+                                // if circadian is met
+                                if ($this->isCircadianMet($user, $nextShift)) {
+                                    $this->placeUserInShift($user, $nextShift);
+                                    $canUserTakeShift = true;
                                 }
-                                if ($nextShift['number'] > $ucount) {
-                                    if ($this->isCircadianMet($user, $nextShift)) {
-                                        if(date('w',strtotime($nextShift['start'])) != '6') {    
-                                        $this->placeUserInShift($user, $nextShift);
-                                        }else{
-                                            break;
+
+                                // Loop through the next available shifts based on the number 
+                                // of blockable shifts preferred by the user
+
+                                for ($i = 1; $i < $block; $i++) {
+                                    $ucount = 0;
+                                    $nextShift = $this->getNextShiftByDay($nextShift);
+                                    if ($nextShift != null || $nextShift != "") {
+
+                                        foreach ($nextShift['users'] as $u) {
+                                            $ucount++;
                                         }
+                                        if ($nextShift['number'] > $ucount) {
+                                            if ($this->isCircadianMet($user, $nextShift)) {
+                                                if (date('w', strtotime($nextShift['start'])) != '6') {
+                                                    $this->placeUserInShift($user, $nextShift);
+                                                    $canUserTakeShift = true;
+                                                } else {
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        break;
                                     }
                                 }
                             } else {
+                                // The user does not want their shifts blocked, so simply process 
+                                // the single instance of the shift and user
+                                if ($this->isCircadianMet($user, $nextShift)) {
+                                    $this->placeUserInShift($user, $nextShift);
+                                    $canUserTakeShift = true;
+                                }
+                            } //end if ($this->isShiftBlockable($shift)
+                        }// end if (!$this->isUserOverMax($user)
+                    } // end if (!$this->timeOffExistsForUser($user,$shift))
+                    //   $canUserTakeShift = true;
+                    $shiftpass++;
+                    if ($shiftpass >= $scheduleCount) {
+                        break;
+                    }
+                } // end of second internal while
+                $pass++; //increment the pass counter to see how many passes have taken place
+                if ($pass >= $prefCount) {
+                    break;
+                }
+            } // end while
+        } // end foreach	
+    }
+
+    private function placeUsersInWeekends() {
+        $scheduleCount = count($this->schedule);
+        $scheduleCount--;
+        $this->openShifts = $this->countOpenShifts();
+        while ($this->openShifts > 0) {
+            $this->sortUsers("tokens");
+            foreach ($this->users as $user) {
+                $maxgrouphours = maxGroupHours($this->users, $user['group']);
+                if ($user['hours'] <= $maxgrouphours) {
+                    $canUserTakeShift = false;
+                    $pass = 0;
+                    $prefCount = 0;
+                    foreach ($user['preferences']['shifts'] as $prefshift) {
+                        $prefCount++;
+                    }
+                    // Continue looping through shifts until a shift is found that matches a 
+                    // user preference and the user can work it 
+
+                    while ($canUserTakeShift == false) {
+                        // Gets the user's preferred shift
+                        $shiftId = $this->getUsersPreferredShift($user, $pass);
+                        $goodshift = false;
+                        $shiftpass = 0;
+                        while ($goodshift == false) {
+                            // Gets the next instance of the user-preferred shift
+                            $nextShift = $this->getFirstAvailableShift($user, $shiftId, $shiftpass, '8');
+                            if (!$this->isUserOverMax($user, $nextShift)) {
+                                if (!$nextShift) {
+                                    break;
+                                }
+                                // Unless the user has requested this shift off, process
+                                if (!$this->timeOffExistsForUser($user, $nextShift)) {
+                                    $goodshift = true;
+                                    // If user has worked their max monthly hours, break
+                                    // If the user has requested the system to block shifts, loop 
+                                    // through the block at once and attempt to place the user 
+                                    // into the complete block
+                                    //get count of block
+                                    $block = $this->isShiftBlockable($user, $nextShift);
+                                    if ($block) {
+                                        // Place the user into the first day of the block series
+                                        // if circadian is met
+                                        if ($this->isCircadianMet($user, $nextShift)) {
+                                            $this->placeUserInShift($user, $nextShift);
+                                            $canUserTakeShift = true;
+                                        }
+
+                                        // Loop through the next available shifts based on the number 
+                                        // of blockable shifts preferred by the user
+
+                                        for ($i = 1; $i < $block; $i++) {
+                                            $ucount = 0;
+                                            $nextShift = $this->getNextShiftByDay($nextShift);
+                                            if ($nextShift != null || $nextShift != "") {
+
+                                                foreach ($nextShift['users'] as $u) {
+                                                    $ucount++;
+                                                }
+                                                if ($nextShift['number'] > $ucount) {
+                                                    if ($this->isCircadianMet($user, $nextShift)) {
+                                                        if (date('w', strtotime($nextShift['start'])) != '6') {
+                                                            $this->placeUserInShift($user, $nextShift);
+                                                            $canUserTakeShift = true;
+                                                        } else {
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                break;
+                                            }
+                                        }
+                                    } else {
+                                        // The user does not want their shifts blocked, so simply process 
+                                        // the single instance of the shift and user
+                                        if ($this->isCircadianMet($user, $nextShift)) {
+                                            $this->placeUserInShift($user, $nextShift);
+                                            $canUserTakeShift = true;
+                                        }
+                                    } //end if ($this->isShiftBlockable($shift)
+                                } // end if (!$this->timeOffExistsForUser($user,$shift))
+                            }
+                            $shiftpass++;
+                            if ($shiftpass >= $scheduleCount) {
                                 break;
                             }
+                        } // end of second internal while   
+
+                        $pass++; //increment the pass counter to see how many passes have taken place
+                        if ($pass >= $prefCount) {
+                            break;
                         }
-                    } else {
-                        // The user does not want their shifts blocked, so simply process 
-                        // the single instance of the shift and user
-                        if ($this->isCircadianMet($user, $nextShift)) {
-                            $this->placeUserInShift($user, $nextShift);
-                        }
-                    } //end if ($this->isShiftBlockable($shift)
-                }// end if (!$this->isUserOverMax($user)
-            } // end if (!$this->timeOffExistsForUser($user,$shift))
-            //   $canUserTakeShift = true;
-            // } // end while
-        } // end foreach	
+                    } // end while 
+                }
+            } // end foreach	
+            if ($canUserTakeShift == false) {
+                break;
+            }
+        }
     }
 
     private function placeUsersInRemainingShifts() {
         // -- Now that users have their preferred shifts, start rules-based checks and schedule for real
-        $shifts = getShiftsForSchedule();
-
+        $maxUsers = count($users);
         // Loop through shifts within schedule
-        foreach ($shifts as $shift) {
+        foreach ($this->schedule as $shift) {
 
             // While there are open slots in the current shift
             $numSlotsOpen = $this->getNumOfSlotsOpenForShift($shift);
-            while ($numSlotsOpen > 0) {
-                $user = $this->getUsersPreferredShift($user);
+            for ($i = 0; $i <= $numSlotsOpen; $i++) {
+                $canUserTakeShift = false;
+                $placementCount = 0;
+                while ($canUserTakeShift == false) {
+                    $user = $this->getUsersByShiftPreference($shift, $placementCount);
 
-                // Unless the user has requested this shift off, process
-                if (!$this->timeOffExistsForUser($user, $shift)) {
-                    if (!$this->isUserOverMax($user)) {
-                        $previous = $this->getUsersPreferredShift($user);
+                    // Unless the user has requested this shift off, process
+                    if (!$this->timeOffExistsForUser($user, $shift)) {
+                        if (!$this->isUserOverMax($user)) {
+                            $previous = $this->getUsersPreferredShift($user);
 
-                        // Is circadian met?
-                        if ($this->isCircadianMet($previous)) {
+                            // Is circadian met?
+                            if ($this->isCircadianMet($previous)) {
 
-                            // Is the shift a day or night shift
-                            $dayOrNight = $this->isShiftDayOrNight($previous);
-                            if ($dayOrNight == "Day") {
+                                // Is the shift a day or night shift
+                                $dayOrNight = $this->isShiftDayOrNight($previous);
+                                if ($dayOrNight == "Day") {
 
-                                // If the previous shift was a night shift, make sure they can work this day shift
-                                if ($this->getPreviousShiftByDay($day, $shift) == "Night") {
-                                    if (($shift['endreal'] - $previous) >= $user['preferences']['shiftAfterNight']) {
-                                        $this->placeUserInShift($user, $shift);
-                                    } else {
-                                        break; // break from getPreviousShiftByDay check
-                                    }
-                                } // end if ($this->getPreviousShiftByDay($day,$shift) == "Night")
+                                    // If the previous shift was a night shift, make sure they can work this day shift
+                                    if ($this->getPreviousShiftByDay($day, $shift) == "Night") {
+                                        if (($shift['endreal'] - $previous) >= $user['preferences']['shiftAfterNight']) {
+                                            $this->placeUserInShift($user, $shift);
+                                        } else {
+                                            break; // break from getPreviousShiftByDay check
+                                        }
+                                    } // end if ($this->getPreviousShiftByDay($day,$shift) == "Night")
 
-                                if ($this->isShiftWeekendOrWeekday($shift)) {
-                                    // Run some kind of weekend normalization checks here
-                                    // If normalization code checks out, schedule the user within this shift
-                                    //$this->placeUserInShift($user, $shift);
-                                } // end if ($this->isShiftWeekendOrWeekday($shift)
-                            } // end if ($dayOrNight == "Day")
-                        } // end if ($this->isCircadianMet($previous))
-                    } // end if (!$this->isUserOverMax($user))
-                } // end if (!$this->timeOffExistsForUser($user, $shift))
+                                    if ($this->isShiftWeekendOrWeekday($shift)) {
+                                        // Run some kind of weekend normalization checks here
+                                        // If normalization code checks out, schedule the user within this shift
+                                        //$this->placeUserInShift($user, $shift);
+                                    } // end if ($this->isShiftWeekendOrWeekday($shift)
+                                } // end if ($dayOrNight == "Day")
+                            } // end if ($this->isCircadianMet($previous))
+                        } // end if (!$this->isUserOverMax($user))
+                    } // end if (!$this->timeOffExistsForUser($user, $shift))
+                    $placementCount++; //increment the pass counter to see how many passes have taken place
+                    if ($placementCount > $maxUsers) {
+                        break;
+                    }
+                }
             } // end while ($numSlotsOpen > 0)
         } // foreach ($shifts as $shift)
     }
 
     public function staffSchedule() {
-		$this->sortUsersByPriority();
-                print_r($this->users);
+        $this->sortUsers("both");
         $this->placeUsersInPreferredShifts();
-        
-        
-        // $this->placeUsersInRemainingShifts();
+
+        $this->placeUsersInWeekends();
+        //$this->placeUsersInRemainingShifts();
 
 
 
@@ -723,6 +974,14 @@ class Staff {
     }
 
     public function updateSchedule() {
+        $arg = array('col' => $this->groupcode, 'type' => 'tempShift', 'where' => array('day' => array('$ne' => '0')));
+        $results = $this->db->find($arg);
+        foreach ($results as $shift) {
+            //$shift['users'][] = array('first_name' => $pickeduser['first_name'], 'last_name' => $pickeduser['last_name'], 'user_name' => $pickeduser['user_name'], 'id' => $this->db->_id($pickeduser['_id']));
+            $this->schedule[$shift['id']]['users'] = $shift['users'];
+        }
+
+
         $obj = array('schedule' => $this->schedule, 'active' => 1);
         $arg = array('col' => $this->groupcode, 'type' => 'schedule', 'obj' => $obj, 'id' => $this->scheduleId);
         $results = $this->db->upsert($arg);
@@ -747,119 +1006,154 @@ class Staff {
         }
         return $shift;
     }
-	
-	public function sortUsersByPriority() {
-		$tmpArr = array();
-		$tmpPrevVal = 0;
-		$count = $this->users;
-		
-		rsort($this->users);
-		
-		$priority = array();
-		foreach ($this->users as $key => $row)
-		{
-			$priority[$key] = $row['priority'];
-		}
-		array_multisort($priority, SORT_DESC, $this->users);
-		
-		$array5 = array();
-		$array4 = array();
-		$array3 = array();
-		$array2 = array();
-		$array1 = array();
-		
-		foreach($this->users as $user) {
-			$priorityNum = $user['priority'];
-			
-			switch($priorityNum) {
-				case "5":
-					array_push($array5, $user);
-					break;
-				case "4":
-					array_push($array4, $user);
-					break;
-				case "3":
-					array_push($array3, $user);
-					break;
-				case "2":
-					array_push($array2, $user);
-					break;
-				case "1":
-					array_push($array1, $user);
-					break;
-			}
-		}
-		
-		foreach($array5 as $user) {
-			$priority = array();
-			foreach ($array5 as $key => $row)
-			{
-				$priority[$key] = $row['tokens'];
-			}
-			array_multisort($priority, SORT_ASC, $array5);
-		}
 
-		foreach($array4 as $user) {
-			$priority = array();
-			foreach ($array4 as $key => $row)
-			{
-				$priority[$key] = $row['tokens'];
-			}
-			array_multisort($priority, SORT_ASC, $array4);
-		}
+    /*
+      Name: sortUsers
+      Description: Takes the users object and randomizes the
+      collection, then sorts them based on $sortType
 
-		foreach($array3 as $user) {
-			$priority = array();
-			foreach ($array3 as $key => $row)
-			{
-				$priority[$key] = $row['tokens'];
-			}
-			array_multisort($priority, SORT_ASC, $array3);
-		}
+      @params	$sortType	The type of sort, either 'both' or 'tokens'
+     */
 
-		foreach($array2 as $user) {
-			$priority = array();
-			foreach ($array2 as $key => $row)
-			{
-				$priority[$key] = $row['tokens'];
-			}
-			array_multisort($priority, SORT_ASC, $array2);
-		}
+    public function sortUsers($sortType) {
+        rsort($this->users);
+        if ($sortType == "both") {
+            $this->sortUsersByPriorityThenTokens();
+        } else {
+            $this->sortUsersByTokens();
+        }
+    }
 
-		foreach($array1 as $user) {
-			$priority = array();
-			foreach ($array1 as $key => $row)
-			{
-				$priority[$key] = $row['tokens'];
-			}
-			array_multisort($priority, SORT_ASC, $array1);
-		}
-		
-		
-		$newArray = array();
-		
-		foreach($array5 as $user) {
-			array_push($newArray, $user);
-		}
-		
-		foreach($array4 as $user) {
-			array_push($newArray, $user);
-		}
-		
-		foreach($array3 as $user) {
-			array_push($newArray, $user);
-		}
-		
-		foreach($array2 as $user) {
-			array_push($newArray, $user);
-		}
-		
-		foreach($array1 as $user) {
-			array_push($newArray, $user);
-		}
-		
-		$this->users = $newArray;
-	}
+    /*
+      Name: sortUsersByPriorityThenTokens
+      Description: Takes the users object and sorts them
+      based on priority, then by number of tokens ASC
+     */
+
+    private function sortUsersByPriorityThenTokens() {
+        $priority = array();
+        foreach ($this->users as $key => $row) {
+            $priority[$key] = $row['priority'];
+        }
+
+        array_multisort($priority, SORT_DESC, $this->users);
+
+        $array5 = array();
+        $array4 = array();
+        $array3 = array();
+        $array2 = array();
+        $array1 = array();
+
+        foreach ($this->users as $user) {
+            $priorityNum = $user['priority'];
+
+            switch ($priorityNum) {
+                case "5":
+                    array_push($array5, $user);
+                    break;
+                case "4":
+                    array_push($array4, $user);
+                    break;
+                case "3":
+                    array_push($array3, $user);
+                    break;
+                case "2":
+                    array_push($array2, $user);
+                    break;
+                case "1":
+                    array_push($array1, $user);
+                    break;
+            }
+        }
+
+        foreach ($array5 as $user) {
+            $priority = array();
+            foreach ($array5 as $key => $row) {
+                $priority[$key] = $row['tokens'];
+            }
+            array_multisort($priority, SORT_ASC, $array5);
+        }
+
+        foreach ($array4 as $user) {
+            $priority = array();
+            foreach ($array4 as $key => $row) {
+                $priority[$key] = $row['tokens'];
+            }
+            array_multisort($priority, SORT_ASC, $array4);
+        }
+
+        foreach ($array3 as $user) {
+            $priority = array();
+            foreach ($array3 as $key => $row) {
+                $priority[$key] = $row['tokens'];
+            }
+            array_multisort($priority, SORT_ASC, $array3);
+        }
+
+        foreach ($array2 as $user) {
+            $priority = array();
+            foreach ($array2 as $key => $row) {
+                $priority[$key] = $row['tokens'];
+            }
+            array_multisort($priority, SORT_ASC, $array2);
+        }
+
+        foreach ($array1 as $user) {
+            $priority = array();
+            foreach ($array1 as $key => $row) {
+                $priority[$key] = $row['tokens'];
+            }
+            array_multisort($priority, SORT_ASC, $array1);
+        }
+
+
+        $newArray = array();
+
+        foreach ($array5 as $user) {
+            array_push($newArray, $user);
+        }
+
+        foreach ($array4 as $user) {
+            array_push($newArray, $user);
+        }
+
+        foreach ($array3 as $user) {
+            array_push($newArray, $user);
+        }
+
+        foreach ($array2 as $user) {
+            array_push($newArray, $user);
+        }
+
+        foreach ($array1 as $user) {
+            array_push($newArray, $user);
+        }
+
+        $this->users = $newArray;
+
+        foreach ($this->users as $user) {
+            echo $user['priority'] . " - " . $user['tokens'] . "<br />";
+        }
+    }
+
+    /*
+      Name: sortUsersByTokens
+      Description: Takes the users object and sorts them
+      based on number of tokens ASC
+     */
+
+    private function sortUsersByTokens() {
+        $tokens = array();
+        foreach ($this->users as $key => $row) {
+            $tokens[$key] = $row['tokens'];
+        }
+
+        array_multisort($tokens, SORT_ASC, $this->users);
+
+        foreach ($this->users as $user) {
+            echo $user['priority'] . " - " . $user['tokens'] . "<br />";
+        }
+    }
 
 }
 

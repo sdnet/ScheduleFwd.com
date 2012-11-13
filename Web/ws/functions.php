@@ -492,12 +492,12 @@ function getHoursByUserId($groupcode, $userId, $scheduleId) {
                 $t1 = new DateTime($shift['start']);
                 $t2 = new DateTime($shift['endreal']);
                 $t3 = date_diff($t1, $t2);
-                $hours = $hours + $t3->h;
+                $hours = $hours + $t3->m;
             }
         }
     }
     if ($results != null) {
-        return $hours;
+        return round(($hours/60),1);
     } else {
         return false;
     }
@@ -561,13 +561,13 @@ function getTotalHoursByUserId($groupcode, $userId, $year = null) {
                     $t1 = new DateTime($shift['start']);
                     $t2 = new DateTime($shift['endreal']);
                     $t3 = date_diff($t1, $t2);
-                    $hours = $hours + $t3->h;
+                    $hours = $hours + $t3->m;
                 }
             }
         }
     }
     if ($results != null) {
-        return $hours;
+        return round(($hours/60),1);
     } else {
         return false;
     }
@@ -594,13 +594,13 @@ function getMonthHoursByUserId($groupcode, $userId, $month = null, $year = null)
                     $t1 = new DateTime($shift['start']);
                     $t2 = new DateTime($shift['endreal']);
                     $t3 = date_diff($t1, $t2);
-                    $hours = $hours + $t3->h;
+                    $hours = $hours + $t3->m;
                 }
             }
         }
     }
     if ($results != null) {
-        return $hours;
+        return round(($hours/60),1);
     } else {
         return false;
     }
@@ -1000,17 +1000,22 @@ function isWeekend($date) {
 
 function isNight($startdate, $enddate) {
     $timestamp = strtotime($startdate);
-    $day = date('l', $timestamp);
+    $day = date('d', $timestamp);
     $month = date('m', $timestamp);
     $year = date('Y', $timestamp);
-    $nightstamp = strtotime('' . $month . '-' . $day . '-' . $year . ' 3:00am');
-    if ($nightstamp > strtotime($startdate) && $nightstamp < strtotime($enddate)) {
-        $dayornight = true;
-    } else {
-        $dayornight = false;
-    }
+//    $nightstamp = strtotime('' . $month . '-' . $day . '-' . $year . ' 3:00am');
+//    if ($nightstamp > strtotime($startdate) && $nightstamp < strtotime($enddate)) {
+//        $dayornight = true;
+//    } else {
+//        $dayornight = false;
+//    }
+    $nightstamp = strtotime('' . $year. '-' . $month . '-' . $day. ' 19:00:00');
 
-    return $dayornight;
+    if ($nightstamp <= $timestamp) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 function maxGroupHours($users, $group) {
@@ -1178,7 +1183,7 @@ function getNumberOfDaysConsec($groupcode, $shiftId, $userId, $schedule = false,
     return $daymatches;
 }
 
-function getNextDayShiftId($groupcode, $day, $shiftname, $schedule) {
+function getNextDayShiftId($groupcode, $date, $shiftname, $schedule) {
 
     $nextday = strtotime(date("Y-m-d", strtotime($date)) . " +1 day");
     if ($schedule) {
@@ -1195,12 +1200,12 @@ function getNextDayShiftId($groupcode, $day, $shiftname, $schedule) {
 function getNextDayShift($groupcode, $date, $shiftId, $schedule) {
     $retShift = false;
     $nextday = strtotime($date . " +1 day");
-        foreach ($schedule as $shift) {
-            if (($nextday == strtotime($shift['start'])) && ($shift['shiftId'] == $shiftId)) {
-                $retShift = $shift;
-                break;
-            }
+    foreach ($schedule as $shift) {
+        if (($nextday == strtotime($shift['start'])) && ($shift['shiftId'] == $shiftId)) {
+            $retShift = $shift;
+            break;
         }
+    }
     return $retShift;
 }
 
@@ -1252,7 +1257,7 @@ function getNextShiftWorked($schedule, $userId, $shiftId) {
     $retShift = false;
     $count = count($schedule);
     $count--;
-   
+    $count--;
     for ($i = $count; $i > $shiftId; $i--) {
         $userList = $schedule[$i]['users'];
         if (empty($schedule[$i]['users'])) {
@@ -1279,25 +1284,62 @@ function getNextAvailableShift($schedule, $shiftId) {
 }
 
 //Get first available shift by template shiftId
-function getFirstAvailableShift($schedule, $shiftId) {
+function getFirstAvailableShift($user, $schedule, $shiftId, $offset = 0, $weekday = '6') {
+    $retShift = false;
+    $offsetCount = 0;
+    $hours = $user['hours'];
+    $max = $user['max_hours'];
+    $count = count($schedule);
+    $count--;
+    for ($i = 0; $i < $count; $i++) {
+        $duration = $schedule[$i]['duration'];
+        $tempHours = $duration + $hours;
+        if ($tempHours <= $max) {
+            $usercount = 0;
+            if (date('N', strtotime($schedule[$i]['start'])) < $weekday) {
+                if (($schedule[$i]['shiftId'] == $shiftId)) {
+                    $userList = $schedule[$i]['users'];
+                    if (empty($schedule[$i]['users'])) {
+                        $userList = array();
+                    }
+
+                    foreach ($userList as $user) {
+                        $usercount++;
+                    }
+                    if (($schedule[$i]['number'] > $usercount)) {
+                        if ($offsetCount == $offset) {
+                            $retShift = $schedule[$i];
+                            break;
+                        } else {
+                            $offsetCount++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return $retShift;
+}
+
+//Get first available shift by template shiftId
+function getFirstAvailable($schedule) {
     $retShift = false;
     $count = count($schedule);
     $count--;
-    for ($i = 0; $i <= $count; $i++) {
+    for ($i = 0; $i < $count; $i++) {
         $usercount = 0;
-        if (($schedule[$i]['shiftId'] == $shiftId)) {
-            $userList = $schedule[$i]['users'];
-            if (empty($schedule[$i]['users'])) {
-                $userList = array();
-            }
+        $userList = $schedule[$i]['users'];
+        if (empty($schedule[$i]['users'])) {
+            $userList = array();
+        }
 
-            foreach ($userList as $user) {
-                $usercount++;
-            }
-            if (($schedule[$i]['number'] > $usercount)) {
-                $retShift = $schedule[$i];
-                break;
-            }
+        foreach ($userList as $user) {
+            $usercount++;
+        }
+        if (($schedule[$i]['number'] > $usercount)) {
+
+            $retShift = $schedule[$i];
+            break;
         }
     }
     return $retShift;
