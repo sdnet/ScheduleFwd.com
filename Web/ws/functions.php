@@ -492,12 +492,16 @@ function getHoursByUserId($groupcode, $userId, $scheduleId) {
                 $t1 = new DateTime($shift['start']);
                 $t2 = new DateTime($shift['endreal']);
                 $t3 = date_diff($t1, $t2);
-                $hours = $hours + $t3->i;
+                $hours = $hours + $t3->h;
+               // $t1 = strtotime($shift['start']);
+               // $t2 = strtotime($shift['endreal']);
+               // $t3 = $t2 - $t1;
+               // $hours = floor($t3 / 60 / 60);
             }
         }
     }
     if ($results != null) {
-        return round(($hours/60),1);
+        return $hours;
     } else {
         return false;
     }
@@ -558,16 +562,16 @@ function getTotalHoursByUserId($groupcode, $userId, $year = null) {
             foreach ($shift['users'] as $user) {
                 if ($user['id'] == $userId) {
 
-                    $t1 = new DateTime($shift['start']);
-                    $t2 = new DateTime($shift['endreal']);
-                    $t3 = date_diff($t1, $t2);
-                    $hours = $hours + $t3->i;
+                    $t1 = strtotime($shift['start']);
+                    $t2 = strtotime($shift['endreal']);
+                    $t3 = $t2 - $t1;
+                    $hours = floor($t3 / 60 / 60);
                 }
             }
         }
     }
     if ($results != null) {
-        return round(($hours/60),1);
+        return $hours;
     } else {
         return false;
     }
@@ -591,16 +595,16 @@ function getMonthHoursByUserId($groupcode, $userId, $month = null, $year = null)
             foreach ($shift['users'] as $user) {
                 if ($user['id'] == $userId) {
 
-                    $t1 = new DateTime($shift['start']);
-                    $t2 = new DateTime($shift['endreal']);
-                    $t3 = date_diff($t1, $t2);
-                    $hours = $hours + $t3->i;
+                    $t1 = strtotime($shift['start']);
+                    $t2 = strtotime($shift['endreal']);
+                    $t3 = $t2 - $t1;
+                    $hours = floor($t3 / 60 / 60);
                 }
             }
         }
     }
     if ($results != null) {
-        return round(($hours/60),1);
+        return $hours;
     } else {
         return false;
     }
@@ -970,6 +974,67 @@ function getShiftsByUserFromSchedId($groupcode, $scheduleId, $user) {
     return $shiftArray;
 }
 
+function weekendNormalization($month, $year) {
+    $db = new MONGORILLA_DB;
+    $inMonth = array();
+    $inYear = array();
+
+    // First month and year combination
+    array_push($inMonth, $month);
+    array_push($inYear, $year);
+    $month--;
+
+    // Second month and year combination
+    if ($month < 1) {
+        $month = 12;
+        $year--;
+    }
+    array_push($inMonth, $month);
+    array_push($inYear, $year);
+    $month--;
+
+    // Third month and year combination
+    if ($month < 1) {
+        $month = 12;
+        $year--;
+    }
+    array_push($inMonth, $month);
+    array_push($inYear, $year);
+
+    $userHours = array();
+    $db = new MONGORILLA_DB;
+
+    for ($i = 0; $i < count($inMonth); $i++) {
+        $where = array('month' => '' . $inMonth[$i] . '', 'year' => '' . $inYear[$i] . '');
+        $arg = array('col' => "$groupcode", 'type' => 'schedule', 'where' => $where);
+        $results = $db->find($arg);
+
+        foreach ($results[0]['schedule'] as $shift) {
+            $date = $shift['start'];
+            $users = $shift['users'];
+            if ($users) {
+                foreach ($users as $user) {
+                    $username = $user['user_name'];
+                    $fname = $user['first_name'];
+                    $lname = $user['last_name'];
+                    $userHours[$username]['id'] = "";
+                    if (isWeekend($date) == true) {
+                        if (isset($userHours[$username]['numWeekendShifts'])) {
+                            $userHours[$username]['numWeekendShifts'] = $userHours[$username]['numWeekendShifts'] + 1;
+                            $userHours[$username]['weekendPercentage'] = (int) ($userHours[$username]['numWeekendShifts'] / 3);
+                        } else {
+                            $userHours[$username]['numWeekendShifts'] = 0;
+                            $userHours[$username]['weekendPercentage'] = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return $userHours;
+}
+
 function shiftFallsOnAShift($shiftArray, $startTime, $endTime) {
     foreach ($shiftArray as $shift) {
         $startTime1 = strtotime($startTime);
@@ -1009,7 +1074,7 @@ function isNight($startdate, $enddate) {
 //    } else {
 //        $dayornight = false;
 //    }
-    $nightstamp = strtotime('' . $year. '-' . $month . '-' . $day. ' 19:00:00');
+    $nightstamp = strtotime('' . $year . '-' . $month . '-' . $day . ' 19:00:00');
 
     if ($nightstamp <= $timestamp) {
         return true;
