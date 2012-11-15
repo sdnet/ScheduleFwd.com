@@ -492,7 +492,7 @@ function getHoursByUserId($groupcode, $userId, $scheduleId) {
                 $t1 = new DateTime($shift['start']);
                 $t2 = new DateTime($shift['endreal']);
                 $t3 = date_diff($t1, $t2);
-                $hours = $hours + $t3->m;
+                $hours = $hours + $t3->i;
             }
         }
     }
@@ -561,7 +561,7 @@ function getTotalHoursByUserId($groupcode, $userId, $year = null) {
                     $t1 = new DateTime($shift['start']);
                     $t2 = new DateTime($shift['endreal']);
                     $t3 = date_diff($t1, $t2);
-                    $hours = $hours + $t3->m;
+                    $hours = $hours + $t3->i;
                 }
             }
         }
@@ -594,7 +594,7 @@ function getMonthHoursByUserId($groupcode, $userId, $month = null, $year = null)
                     $t1 = new DateTime($shift['start']);
                     $t2 = new DateTime($shift['endreal']);
                     $t3 = date_diff($t1, $t2);
-                    $hours = $hours + $t3->m;
+                    $hours = $hours + $t3->i;
                 }
             }
         }

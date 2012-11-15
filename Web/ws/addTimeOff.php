@@ -62,4 +62,16 @@ else{
 
 }
 echo json_encode(array('message' => $message, 'data'=>$data));
+
+
+array(
+'users' => Array ( '$in' => '50994da1411e4e62f6721454' ), '$or' => Array (
+'start' => Array ( '$gt' => '1357282800'), 
+'$lt' => '1357354800'), 
+'endreal' => Array ( '$lt' => '1357282800', '$gt' => '1357354800') 
+)
+
+
 ?>
+
+
