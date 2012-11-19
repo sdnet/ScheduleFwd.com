@@ -23,7 +23,7 @@ if(VerifySession($sessionId,$groupcode,$userId,'User') == true){
 	}elseif(isset($shiftId)){
 		$shiftIdArray = Array('id' => $shiftId);
 	}
-	$arg = array('col' => "$groupcode", 'type' => 'shift', 'limit' => 1, 'where' => $where, 'keys' => array("name" => 1, "color" => 1, "start" => 1, "end" => 1,"groups" => 1,"_id" => 1, "days" => 1,"number" => 1));
+	$arg = array('col' => "$groupcode", 'type' => 'shift', 'limit' => 1, 'where' => $where, 'keys' => array("name" => 1, "color" => 1, "start" => 1, "end" => 1,"groups" => 1,"_id" => 1, "days" => 1,"number" => 1, 'location' => 1));
 	if(isset($shiftIdArray)){
 		$arg = array_merge($shiftIdArray, $arg);
 	}

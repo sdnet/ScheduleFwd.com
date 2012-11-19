@@ -11,7 +11,9 @@ if(isset($_POST['id']) && $_POST['id'] != ""){
 $shiftId = trim($_POST['shiftId']);
 $date = trim($_POST['date']);
 $priority = trim($_POST['priority']);
+$mustwork = trim($_POST['mustwork']);
 $update = $_POST['update'];
+
 // check session
 if(VerifySession($sessionId,$groupcode,$userId,'User') == true){
 	if($groupcode == "" || $userId == null) {
@@ -35,11 +37,21 @@ if(VerifySession($sessionId,$groupcode,$userId,'User') == true){
 			$arg = array('id' => $timeOffId, 'col' => "$groupcode", 'type' => 'timeoff',  'obj' => array('priority' => $priority));
 			$results = $db->upsert($arg);	
 		}else{
+		
+		// If this is must work request, delete the timeoff record that was inserted	
+		if ($mustwork == true) {
+			$where = array('userId' => $userId, 'time_off' => array($date => $shiftId));
+			$arg = array('col' => "$groupcode", 'type' => 'timeoff', 'where' => $where);
+			$results = $db->delete($arg);
+		}
+		
+			
+			
 		$timeOffArray = array($date => $shiftId);
 		$arg = array('id' => "$userId",'col' => "$groupcode", 'type' => 'user');
 		$result = $db->find($arg);
 		$role = getRoleById($groupcode, $userId);
-		$obj = array('first_name' => $result[0]['first_name'], 'last_name' => $result[0]['last_name'], 'user_name' => $result[0]['user_name'], 'status' => 'Pending', 'active' => 1, 'userId' => $userId, 'role' => $role, 'month' => $month, 'year' => $year,'time_off' => $timeOffArray, 'status' => 'Pending', 'date_created' => new MongoDate());
+		$obj = array('first_name' => $result[0]['first_name'], 'last_name' => $result[0]['last_name'], 'user_name' => $result[0]['user_name'], 'status' => 'Pending', 'active' => 1, 'userId' => $userId, 'role' => $role, 'month' => $month, 'year' => $year,'time_off' => $timeOffArray, 'status' => 'Pending', 'mustwork' => $mustwork, 'date_created' => new MongoDate());
 		$arg = array('col' => "$groupcode", 'type' => 'timeoff',  'obj' => $obj);
 		$results = $db->upsert($arg);
 		}
@@ -62,16 +74,4 @@ else{
 
 }
 echo json_encode(array('message' => $message, 'data'=>$data));
-
-
-array(
-'users' => Array ( '$in' => '50994da1411e4e62f6721454' ), '$or' => Array (
-'start' => Array ( '$gt' => '1357282800'), 
-'$lt' => '1357354800'), 
-'endreal' => Array ( '$lt' => '1357282800', '$gt' => '1357354800') 
-)
-
-
 ?>
-
-

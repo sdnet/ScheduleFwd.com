@@ -23,6 +23,8 @@ $maxConsecWorkingDays = $_POST['maxConsecWorkingDays'];
 $attendingsLowerLevel = $_POST['attendingsLowerLevel'];
 $weekendShifts = $_POST['weekendShifts'];
 $tradeApproval = $_POST['tradeApproval'];
+$displayTimes = $_POST['displayTimes'];
+$shiftsOrHours = $_POST['shiftsOrHours'];
 
 // check session
 if(VerifySession($sessionId,$groupcode,$_SESSION['_id'],'Admin') == true){
@@ -42,7 +44,7 @@ if(VerifySession($sessionId,$groupcode,$_SESSION['_id'],'Admin') == true){
 			$db->upsert(array('id' => $db->_id($timeoffSet['_id']), 'col' => $groupcode, 'type' => "event", 'obj' => array('day' => $schedVal)));
 			$db->upsert(array('id' => $db->_id($scheduleSet['_id']), 'col' => $groupcode, 'type' => "event", 'obj' => array('day' => $timeoffVal)));
 			
-			$obj = array('dayOfWeekStart' => $dayOfWeekStart, 'timezone' => $timezone, 'emailAutoSend' => $emailAutoSend, 'timeoffReminder3' => $timeoffReminder3, 'timeoffReminder2' => $timeoffReminder2, 'timeoffReminder' => $timeoffReminder, 'emailOptIn' => $emailOptIn, 'autoPublish' => $autoPublish, 'timeoffDeadline' => $timeoffDeadline, 'scheduleGenerate' => $scheduleGenerate, 'circadian' => $circadian, 'overrideCircadian' => $overrideCircadian, 'minHoursBetweenShifts' => $minHoursBetweenShifts, 'maxConsecDay' => $maxConsecDay, 'maxConsecNight' => $maxConsecNight, 'maxNightsPerMonth' => $maxNightsPerMonth, 'maxConsecWorkingDays' => $maxConsecWorkingDays, 'attendingsLowerLevel' => $attendingsLowerLevel, 'weekendShifts' => $weekendShifts, 'tradeApproval' => $tradeApproval, 'last_updated' => new MongoDate());
+			$obj = array('dayOfWeekStart' => $dayOfWeekStart, 'timezone' => $timezone, 'emailAutoSend' => $emailAutoSend, 'timeoffReminder3' => $timeoffReminder3, 'timeoffReminder2' => $timeoffReminder2, 'timeoffReminder' => $timeoffReminder, 'emailOptIn' => $emailOptIn, 'autoPublish' => $autoPublish, 'timeoffDeadline' => $timeoffDeadline, 'scheduleGenerate' => $scheduleGenerate, 'circadian' => $circadian, 'overrideCircadian' => $overrideCircadian, 'minHoursBetweenShifts' => $minHoursBetweenShifts, 'maxConsecDay' => $maxConsecDay, 'maxConsecNight' => $maxConsecNight, 'maxNightsPerMonth' => $maxNightsPerMonth, 'maxConsecWorkingDays' => $maxConsecWorkingDays, 'attendingsLowerLevel' => $attendingsLowerLevel, 'weekendShifts' => $weekendShifts, 'tradeApproval' => $tradeApproval, 'displayTimes' => $displayTimes, 'shiftsOrHours' => $shiftsOrHours, 'last_updated' => new MongoDate());
 			$id = $db->upsert(array('id' => $db->_id($results[0]['_id']), 'col' => $groupcode, 'type' => "config", 'obj' => $obj ));
 			$data = $id;
 			$message = "success";

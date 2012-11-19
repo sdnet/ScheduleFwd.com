@@ -41,6 +41,20 @@
 			$.post('ws/getUsers', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","format":"dt"} , function(data) {
 				userObj = data.data;
 			});
+			
+			function clearForm() {
+				$('#username').val();
+				$('#password').val();
+				$('#firstname').val();
+				$('#lastname').val();
+				$('#email').val();
+				$('#phone').val();
+				$('#group').val();
+				$('#role').val();
+				$('#priority').val();
+				$('#location').val();
+				$('#scheduleProvider').val();
+			}
 				
 			userArray = new Array();
 			var inc = 0;
@@ -56,7 +70,7 @@
 				var edit = "<a title=\"Edit provider's Details\" href=\"#\" class=\"openEditUser\" onClick=\"processEditUserModal('" + username + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" /></a> <a title=\"Edit provider's Scheduling Preferences\" href=\"editUserPrefs?user=" + username + "\"><img src=\"images/wrench.png\" alt=\"Edit\" title=\"Edit Preferences\" /></a> <a title=\"Edit provider's Timeoff Requests\" href=\"editUserTimeoffs?user=" + id + "\"><img src=\"images/calendar_view_day.png\" alt=\"Edit\" title=\"Submit Timeoff Requests\" /></a>";
 				var del = "<a href=\"#\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "','')\" /></a>";
 				
-				userArray[inc] = new Array(firstname,lastname,email,phone,group,role,edit,del);
+				userArray[inc] = new Array(lastname,firstname,email,phone,group,role,edit,del);
 				inc++;
 			}
 
@@ -135,6 +149,9 @@
 				var phone = $('#phone').val();
 				var group = $('#group').val();
 				var role = $('#role').val();
+				var priority = $('#priority').val();
+				var scheduleProvider = $('#scheduleProvider').val();
+				var location = $('#location').val();
 				var max = $('#maxHours').val();
 				var min = $('#minHours').val();
 				var userId = $('#userId').val();
@@ -151,6 +168,9 @@
 					"phone": "" + phone + "",
 					"group": "" + group + "",
 					"role": "" + role + "",
+					"priority": "" + priority + "",
+					"location": "" + location + "",
+					"scheduleProvider": "" + scheduleProvider + "",
 					"grpcode": "<?=$_SESSION['grpcode'];?>"
 				};
 				
@@ -174,7 +194,7 @@
 						}
 						if (data.message == "success") {
 							if (type == "new") {
-								$('#newUserSuccess').html(goImage + ' provider successfully created!');
+								$('#newUserSuccess').html(goImage + ' Provider successfully created!');
 								$('#tblUserMgmt').dataTable().fnAddData( [
 								lastname,
 								firstname,
@@ -186,6 +206,7 @@
 								"<a href=\"#\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "')\" /></a>"
 								]
 								);
+								window.location.reload();
 							} else {
 								$('#newUserSuccess').html(goImage + ' User successfully edited!');
 								$('#pleaseWait').show();
@@ -239,8 +260,8 @@
 							if (type == "new") {
 								$('.orgNewUserSuccess').html(goImage + ' External provider successfully created!');
 								$('#tblUserMgmt').dataTable().fnAddData( [
-								firstname,
 								lastname,
+								firstname,
 								username,
 								email,
 								phone,
@@ -307,7 +328,7 @@
 						var edit = "<a title=\"Edit User's Details\" href=\"#\" class=\"openEditUser\" onClick=\"processEditUserModal('" + username + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" /></a> <a title=\"Edit User's Scheduling Preferences\" href=\"editUserPrefs?user=" + username + "\"><img src=\"images/wrench.png\" alt=\"Edit\" title=\"Edit Preferences\" /></a> <a title=\"Edit User's Timeoff Requests\" href=\"editUserTimeoffs?user=" + id + "\"><img src=\"images/calendar_view_day.png\" alt=\"Edit\" title=\"Submit Timeoff Requests\" /></a>";
 						var del = "<a href=\"#\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "','')\" /></a>";
 						
-						userArray[inc] = new Array(firstname,lastname,email,phone,group,role,edit,del);
+						userArray[inc] = new Array(lastname,firstname,email,phone,group,role,edit,del);
 						inc++;	
 					}
 					
@@ -379,7 +400,7 @@
 						var edit = "<a title=\"Edit User's Details\" href=\"#\" class=\"openEditUser\" onClick=\"processEditExtUserModal('" + id + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" title=\"Edit\" /></a>";
 						var del = "<a href=\"#\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "','external')\" /></a>";
 						
-						userArray[inc] = new Array(orgname,firstname,lastname,email,phone,edit,del);
+						userArray[inc] = new Array(orgname,lastname,firstname,email,phone,edit,del);
 						inc++;
 					}
 					
@@ -439,6 +460,20 @@
 						$('.group-select').html(""); //clear old options
 						$('.group-select').html(select);
 				});
+                                
+                                $.post("ws/getLocations", {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>"}, 
+                    function (data) {
+						var select = '<select name="location" id="location" onChange="getLocationDefaults()">';
+						var temparray = data["data"];
+						select = select + '<option value="All">All</option>';
+						for(i=0; i<temparray.length; i++) {
+							select = select + '<option value="' + temparray[i]['name'] + '">' + temparray[i]['name'] + '</option>';
+						}
+						select = select + "</select>";
+						$('.location-select').html(""); //clear old options
+						$('.location-select').html(select);
+				});
+                          
 			}
     </script>
 
@@ -473,6 +508,8 @@
 		$('#phone').val("");
 		$('#group').val("");
 		$('#role').val("");
+		$('#location').val("");
+		$('#scheduleProvider').val("");
 		
 		$( "#newUser" ).dialog( "open" );
 	}
@@ -532,6 +569,9 @@
 			$('#maxHours').val(userObj.max_hours);
 			$('#minHours').val(userObj.min_hours);
 			$('#role').val(userObj.role);
+			$('#priority').val(userObj.priority);
+			$('#location').val(userObj.location);
+			$('#scheduleProvider').val(userObj.scheduleProvider);
 			$('#btnSubmitNewUser').attr("value" , " Edit User ");
 			$('#btnSubmitNewUser').attr("onClick" , "processUser('edit')");
 			$('#newUser').attr("title" , "Edit User Below");
@@ -626,18 +666,40 @@
 					</select>
 				</td>
 			</tr>
-			<tr id="overridesLink">
-				<td colspan="4"><a href="#" onClick="displayOverrides();" style="font-size: smaller;">Override Default Values...</a></td>
-			</tr>
-			<tr id="overrides" style="display: none;">
-				<td>Overrides: </td>
-				<td>
+			<tr>
+				<td>Properties: </td>
+				<td colspan="4">
 					<table style="width: 100%">
 						<tr>
-							<td colspan="2" style="background-color: #F2F2F2; text-align: center;">Monthly hours</td>
+							<td style="background-color: #F2F2F2; text-align: center;">Monthly hours</td>
+                            <td style="background-color: #F2F2F2; text-align: center;">Provider seniority</td>
 						</tr>
 						<tr>
 							<td style="text-align: center;">Min: <input type="text" name="minHours" id="minHours" style="width: 40px;" /> &nbsp; Max: <input type="text" name="maxHours" id="maxHours" style="width: 40px;" /></td>
+                            <td style="text-align: center;">
+                            	<select name="priority" id="priority">
+                                	<option value="1">1 - Lowest</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5 - Highest</option>
+                                </select>
+                            </td>
+						</tr>
+						<tr>
+							<td style="background-color: #F2F2F2; text-align: center;">Schedule provider?</td>
+                            <td style="background-color: #F2F2F2; text-align: center;">Sites provider can work</td>
+						</tr>
+						<tr>
+							<td style="text-align: center;">
+							  	<select name="scheduleProvider" id="scheduleProvider">
+                                	<option value="Yes">Yes</option>
+									<option value="No">No</option>
+                                </select>
+							</td>
+                            <td style="text-align: center;">
+                                <div class="location-select"></div>
+                            </td>
 						</tr>
 					</table>
 				</td>
@@ -727,8 +789,8 @@
                                         <table id="tblUserMgmt" class="display" style="width: 100%;">
                                             <thead>
                                             <tr>
-                                                <th>First Name</th>
                                                 <th>Last Name</th>
+                                                <th>First Name</th>
                                                 <th>Email</th>
                                                 <th>Phone</th>
                                                 <th>Group</th>
@@ -745,8 +807,8 @@
                                             <thead>
                                             <tr>
                                             	<th>Org. Name</th>
-                                                <th>First Name</th>
                                                 <th>Last Name</th>
+                                                <th>First Name</th>
                                                 <th>Email</th>
                                                 <th>Phone</th>
                                                 <th style="width: 30px;">Edit</th>

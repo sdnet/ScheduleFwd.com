@@ -8,13 +8,23 @@ include('cws.php');
 require('classes/staff.php');
 require('classes/schedule.php');
 //header('Content-type: application/json');
+function microtime_float()
+{
+    list($usec, $sec) = explode(" ", microtime());
+    return ((float)$usec + (float)$sec);
+}
 
-$year = 2013;
-$month = 2;
-$groupcode = "testy";
+$time_start = microtime_float();
+$year = "2013";
+$month = "01";
+$groupcode = "tomtest1";
+//$groupcode = "testy";
 $args = array('col' => "$groupcode", 'type' => 'schedule', 'where' => array('month' => ''.$month.'', 'year' => ''.$year.''));
 $result = $db->delete($args);
 
+
+$year = 2013;
+$month = 1;
 $schedule = new Schedule($year,$month,$groupcode);
 
 $schedule->getShifts();
@@ -24,8 +34,7 @@ $schedule->commit();
 
 
 $year = "2013";
-$month = "02";
-$groupcode = "testy";
+$month = "01";
 
 
 
@@ -39,9 +48,26 @@ $staff->getSchedule();
 $staff->getGroups();
 $staff->getUsers();
 $staff->staffSchedule();
+$staff->updateSchedule();
+$time_end = microtime_float();
+$time = $time_end - $time_start;
 
-print_r($staff->users);
+echo "Took $time seconds\n";
 
+foreach($staff->users as $user){
+	echo "<br>" . $user['user_name'] . " is scheduled for " . floor($user['hours']/60);
+	
+}
+//foreach($staff->badIds as $key=>$value){
+//echo "<br /><br/>";
+//echo $key;
+//echo "<br /><br />";
+//foreach($value as $k=>$v){
+//	echo $v;
+//	echo "<br />";
+//}	
+	
+//}
 //echo json_encode(array('message' => $message, 'data'=>$data));
 
 /*

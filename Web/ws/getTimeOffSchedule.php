@@ -50,7 +50,24 @@ if (VerifySession($sessionId, $groupcode, $userId, 'User') == true) {
                 $year = date('Y', strtotime("+2 months", $today));
                 $month = date('m', strtotime("+2 months", $today));
             }
-
+			
+			$where = array('year' => $year, 'month' => $month, 'userId' => $userId);
+			$arg = array('col' => "$groupcode", 'type' => 'expectedShifts',  'where' => $where);
+			$result = $db->find($arg);
+			if($result != null){
+				$expectedShifts = $result[0]['shifts'];		
+			}else{
+				$year1 = date('Y', strtotime("+1 month", $today));
+				$month1 = date('m', strtotime("+1 month", $today));
+				$where = array('year' => $year1, 'month' => $month1, 'userId' => $userId);
+				$arg = array('col' => "$groupcode", 'type' => 'expectedShifts',  'where' => $where);
+				$result = $db->find($arg);
+				if($result != null){
+				$expectedShifts = $result[0]['shifts'];	
+				}else{
+				$expectedShifts = 12;	
+				}
+			}
             $days = cal_days_in_month(CAL_GREGORIAN, $month, $year);
             $dates;
             for ($i = 1; $i <= $days; $i++) {
@@ -65,9 +82,11 @@ if (VerifySession($sessionId, $groupcode, $userId, 'User') == true) {
                 $formDate = "" . $month . "/" . $date . "/" . $year . " 01:01:01";
                 $weekday = date('l', strtotime($formDate));
                 $timeOffArray = array();
+				
                 foreach ($timeOff as $time) {
+					
                     foreach ($time['time_off'] as $key => $value) {
-                        $statusArray[] = array('date' => $key, 'id' => $value, 'status' => $time['status'], 'priority' => $time['priority']);
+                        $statusArray[] = array('date' => $key, 'id' => $value, 'status' => $time['status'], 'priority' => $time['priority'], 'mustwork' => $time['mustwork']);
                     }
                     foreach ($time['time_off'] as $key => $value) {
                         if ($key == $tempDate) {
@@ -79,6 +98,7 @@ if (VerifySession($sessionId, $groupcode, $userId, 'User') == true) {
                     $timeOffValue = 0;
                     $status = 0;
                     $priority = 0;
+					$mustwork = "";
 
                     if (in_array($db->_id($shift['_id']), $timeOffArray)) {
                         $timeOffValue = 1;
@@ -95,6 +115,7 @@ if (VerifySession($sessionId, $groupcode, $userId, 'User') == true) {
                                 $status = 0;
                             }
                             $priority = $arr['priority'];
+							$mustwork = $arr['mustwork'];
                         }
                     }
 
@@ -111,6 +132,7 @@ if (VerifySession($sessionId, $groupcode, $userId, 'User') == true) {
                             'shiftName' => "" . $shift['name'] . "",
                             'users' => "",
                             'priority' => $priority,
+							'mustwork' => $mustwork,
                             'status' => $status,
                             'timeoff' => $timeOffValue,
                             'day' => "$weekday",
@@ -139,5 +161,7 @@ if ($format == 'dt') {
 } else {
     
 }
+//if Supported the front end uncomment this
+//echo json_encode(array('message' => $message, 'data' => array('data' => $data, 'expectedShifts' => $expectedShifts)));
 echo json_encode(array('message' => $message, 'data' => $data));
 ?>

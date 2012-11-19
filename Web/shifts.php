@@ -72,6 +72,7 @@
 				$('#group').val("");
 				$('#newUserError').html("");
 				$('#newUserSuccess').html("");
+                                $('#location').html("");
 				
 				$.post("ws/getGroups", {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>"}, 
                     function (data) {
@@ -85,8 +86,20 @@
 						$('.group-select').html(""); //clear old options
 						$('.group-select').html(select);
 				});
-			}
 			
+                        
+                        $.post("ws/getLocations", {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>"}, 
+                    function (data) {
+						var select = '<select name="location" id="location" onChange="getLocationDefaults()">';
+						var temparray = data["data"];
+						for(i=0; i<temparray.length; i++) {
+							select = select + '<option value="' + temparray[i]['name'] + '">' + temparray[i]['name'] + '</option>';
+						}
+						select = select + "</select>";
+						$('.location-select').html(""); //clear old options
+						$('.location-select').html(select);
+				});
+			}
 			function editShift(id) {
 				$.post('ws/getShift', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","id":id} , function(data) {
 					userObj = data.data[0];
@@ -99,6 +112,7 @@
 				var numProviders = userObj.number;
 				var groups = userObj.groups;
 				var days = userObj.days;
+                                var location = userObj.location;
 				
 				resetForm();
 				
@@ -133,6 +147,7 @@
 				$('#endTime').val(end);
 				$('#numProviders').val(numProviders);
 				$('#group').val(groups);
+                                $('#location').val(location);
 				
 				$("#btnSubmitNewShift").attr("value"," Edit Shift ");
 				$("#btnSubmitNewShift").attr("onclick"," processShift('edit') ");
@@ -186,12 +201,13 @@
 				var endTime = $('#endTime').val();
 				var numProviders = $('#numProviders').val();
 				var groups = $('#group').val();
+                                var location = $('#location').val();
 				
 				var stopImage = "<img src=\"images/stop.png\" alt=\"Error\" />";
 				var goImage = "<img src=\"images/accept.png\" alt=\"Success\" />";
 				var wsEndPoint = (type == "new" ? "ws/addShift" : "ws/editShift");
 				
-				$.post(wsEndPoint, {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","id":id,"name":name,"color":color,"start":startTime,"end":endTime,"number":numProviders,"groups":groups,"days":daysSelected} , function(data) {
+				$.post(wsEndPoint, {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","id":id,"name":name,"color":color,"start":startTime,"end":endTime,"number":numProviders,"groups":groups,"days":daysSelected, "location":location} , function(data) {
 					if (data.message == "emptyFields") {
 						$('#newUserError').html(stopImage + ' Please fill out all fields.');
 					} else if (data.message == "nameExists") {
@@ -229,6 +245,7 @@
 				var frequency = userObj[i].days;
 				var group = userObj[i].groups[0];
 				var tmpDayHolder = "";
+                                var loc = userObj[i].location;
 
 				if (jQuery.inArray("Monday", frequency)> -1) {
 					tmpDayHolder += '<span class="shiftDayWorking">Mon</span>';
@@ -275,15 +292,16 @@
 				var edit = '<a href="#" class="" onclick="editShift(\'' + id + '\')"><img src="images/wrench.png" alt="Edit Shift" title="Edit Shift" /></a>';
 				var del = '<a href="#" class="" onclick="deleteShift(\'' + id + '\')"><img src="images/cancel.png" alt="Delete Shift" title="Delete Shift" /></a>';
 
-				shiftArray[inc] = new Array(name,times,tmpDayHolder,group,edit,del);
+				shiftArray[inc] = new Array(name,loc,times,tmpDayHolder,group,edit,del);
 				inc++;
 			}
 			
 			$(document).ready(function(){
 				$('#tblShiftMgmt').dataTable({
 					"aoColumns": [
-						null,
-						null,
+                                                null,
+                                                { "bSortable": false },
+                                       		null,
 						{ "bSortable": false },
 						{ "bSortable": false },
 						{ "bSortable": false },
@@ -460,6 +478,10 @@
 					<td>Group: </td>
 					<td><div class="group-select"></div></td>
 				</tr>
+                                <tr>
+					<td>Location: </td>
+					<td><div class="location-select"></div></td>
+				</tr>
 				<tr>
 					<td colspan="4" style="text-align: center; margin-top: 10px;">
 						<input type="hidden" name="hiddenId" id="hiddenId" value="" />
@@ -494,7 +516,8 @@
 									<table id="tblShiftMgmt" class="display" style="width: 100%;">
                                         <thead>
                                         <tr>
-                                            <th style="width: 300px;">Name</th>
+                                            <th style="width: 200px;">Name</th>
+                                              <th style="width: 100px;">Location</th>
 											<th>Times</th>
 											<th>Frequency</th>
                                             <th>Group</th>

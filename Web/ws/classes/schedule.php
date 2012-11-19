@@ -77,7 +77,8 @@ class Schedule {
                         'color' => $shift['color'],
                         'number' => $shift['number'],
                         'day' => "$weekday",
-                        'shiftId' => $shiftId
+                        'shiftId' => $shiftId,
+                        'location' => $shift['location']
                     );
                     $i++;
                 }

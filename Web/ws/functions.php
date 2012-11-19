@@ -428,7 +428,7 @@ function getTimeOffByUserId($groupcode, $userId, $month = null, $year = null) {
     if ($month == null) {
         $month = '' . date('m') . '';
     }
-    $where = array('year' => "$year", 'month' => "$month", 'userId' => $userId);
+	$where = array('year' => "$year", 'month' => "$month", 'userId' => $userId, 'mustwork' => array('$ne' =>true));
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
     $result = $db->find($args);
     if ($result != null) {
@@ -441,7 +441,7 @@ function getTimeOffByUserId($groupcode, $userId, $month = null, $year = null) {
 function isTimeoffRequestedByUserIdAndShiftId($groupcode, $userId, $date, $month, $year, $shiftId) {
     $ret = false;
     $db = new MONGORILLA_DB;
-    $where = array('year' => $year, 'month' => $month, 'time_off' => array('$in' => array($date => $shiftId)), 'userId' => $userId, 'active' => 'Approved');
+	$where = array('year' => $year, 'month' => $month, 'time_off' => array('$in' => array($date => $shiftId)), 'userId' => $userId, 'active' => 'Approved','mustwork' => array('$ne' =>true));
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
     $result = $db->find($args);
     if ($result != null) {
@@ -674,17 +674,14 @@ function getTotalTimeOffByUserId($groupcode, $userId, $year = null) {
     }
 
     $timecount = 0;
-    $where = array('time_off' => array('$in' => array($year)), 'userId' => $userId);
+	$where = array('time_off' => array('$in' => array($year)), 'userId' => $userId,'status' => array('$ne' => 'Disapproved'),'mustwork' => array('$ne' =>true));
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
     $results = $db->find($args);
     foreach ($results as $result) {
         $timecount++;
     }
-    if ($results != null) {
-        return $timecount;
-    } else {
-        return false;
-    }
+    return $timecount;
+    
 }
 
 function getMonthTimeOffByUserId($groupcode, $userId, $month = null, $year = null) {
@@ -697,17 +694,14 @@ function getMonthTimeOffByUserId($groupcode, $userId, $month = null, $year = nul
     }
 
     $timecount = 0;
-    $where = array('year' => $year, 'month' => $month, 'userId' => $userId);
+	$where = array('year' => $year, 'month' => $month, 'userId' => $userId, 'status' => array('$ne' => 'Disapproved'),'mustwork' => array('$ne' =>true));
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
     $results = $db->find($args);
     foreach ($results as $result) {
         $timecount++;
     }
-    if ($results != null) {
-        return $timecount;
-    } else {
-        return false;
-    }
+    return $timecount;
+    
 }
 
 function getUserCanWork($groupcode, $userId, $starttime, $endtime, $shiftId = false, $scheduleId = false) {

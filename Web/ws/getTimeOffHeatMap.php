@@ -33,7 +33,7 @@ if(VerifySession($sessionId,$groupcode,$userId,'Admin') == true){
 				$today = time();
 				
 				$year = date('Y',strtotime("+2 months", $today));
-				$month =  date('n',strtotime("+2 months", $today));
+				$month =  date('m',strtotime("+2 months", $today));
 				
 				$days = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 				$dates;
