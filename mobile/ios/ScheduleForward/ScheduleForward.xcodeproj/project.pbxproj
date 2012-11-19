@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CD2E72031659BFD900250D26 /* TapkuLibrary.bundle in Resources */ = {isa = PBXBuildFile; fileRef = CD2E71FC1659BFD900250D26 /* TapkuLibrary.bundle */; };
+		CD2E720C1659CB0400250D26 /* libTapkuLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD2E72071659BFDA00250D26 /* libTapkuLibrary.a */; };
+		CD2E720E1659CB1100250D26 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD2E720D1659CB1100250D26 /* QuartzCore.framework */; };
+		CD2E72101659CB1F00250D26 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD2E720F1659CB1F00250D26 /* MapKit.framework */; };
+		CD2E72131659E78600250D26 /* MyCalendarViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = CD2E72121659E78600250D26 /* MyCalendarViewController_iPhone.m */; };
 		CDBC4C081659A2FD0008FCA0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDBC4C071659A2FD0008FCA0 /* UIKit.framework */; };
 		CDBC4C0A1659A2FE0008FCA0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDBC4C091659A2FD0008FCA0 /* Foundation.framework */; };
 		CDBC4C0C1659A2FE0008FCA0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDBC4C0B1659A2FE0008FCA0 /* CoreGraphics.framework */; };
@@ -16,9 +21,45 @@
 		CDBC4C1A1659A2FE0008FCA0 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = CDBC4C191659A2FE0008FCA0 /* Default.png */; };
 		CDBC4C1C1659A2FE0008FCA0 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CDBC4C1B1659A2FE0008FCA0 /* Default@2x.png */; };
 		CDBC4C1E1659A2FE0008FCA0 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CDBC4C1D1659A2FE0008FCA0 /* Default-568h@2x.png */; };
+		CDBC4C351659A57C0008FCA0 /* menu-bar.png in Resources */ = {isa = PBXBuildFile; fileRef = CDBC4C331659A57C0008FCA0 /* menu-bar.png */; };
+		CDBC4C361659A57C0008FCA0 /* menu-bar@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CDBC4C341659A57C0008FCA0 /* menu-bar@2x.png */; };
+		CDBC4C4D1659BC5A0008FCA0 /* bg-app.png in Resources */ = {isa = PBXBuildFile; fileRef = CDBC4C4B1659BC5A0008FCA0 /* bg-app.png */; };
+		CDBC4C4E1659BC5A0008FCA0 /* bg-app@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CDBC4C4C1659BC5A0008FCA0 /* bg-app@2x.png */; };
+		CDBC4C521659BD3B0008FCA0 /* LoginViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = CDBC4C501659BD3B0008FCA0 /* LoginViewController_iPhone.m */; };
+		CDBC4C531659BD3B0008FCA0 /* LoginViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = CDBC4C511659BD3B0008FCA0 /* LoginViewController_iPhone.xib */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		CD2E72061659BFDA00250D26 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CD2E71FD1659BFD900250D26 /* TapkuLibrary.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC07E0554694100DB518D;
+			remoteInfo = TapkuLibrary;
+		};
+		CD2E72081659BFDA00250D26 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CD2E71FD1659BFD900250D26 /* TapkuLibrary.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3B45DDF1134C736600D24C1A;
+			remoteInfo = LogicTests;
+		};
+		CD2E720A1659CAF200250D26 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CD2E71FD1659BFD900250D26 /* TapkuLibrary.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = TapkuLibrary;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		CD2E71FC1659BFD900250D26 /* TapkuLibrary.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = TapkuLibrary.bundle; path = ../../src/TapkuLibrary.bundle; sourceTree = "<group>"; };
+		CD2E71FD1659BFD900250D26 /* TapkuLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TapkuLibrary.xcodeproj; path = ../../src/TapkuLibrary.xcodeproj; sourceTree = "<group>"; };
+		CD2E720D1659CB1100250D26 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		CD2E720F1659CB1F00250D26 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		CD2E72111659E78600250D26 /* MyCalendarViewController_iPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyCalendarViewController_iPhone.h; sourceTree = "<group>"; };
+		CD2E72121659E78600250D26 /* MyCalendarViewController_iPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyCalendarViewController_iPhone.m; sourceTree = "<group>"; };
 		CDBC4C031659A2FD0008FCA0 /* ScheduleForward.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScheduleForward.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDBC4C071659A2FD0008FCA0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		CDBC4C091659A2FD0008FCA0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -32,6 +73,13 @@
 		CDBC4C191659A2FE0008FCA0 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		CDBC4C1B1659A2FE0008FCA0 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		CDBC4C1D1659A2FE0008FCA0 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		CDBC4C331659A57C0008FCA0 /* menu-bar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-bar.png"; sourceTree = "<group>"; };
+		CDBC4C341659A57C0008FCA0 /* menu-bar@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-bar@2x.png"; sourceTree = "<group>"; };
+		CDBC4C4B1659BC5A0008FCA0 /* bg-app.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bg-app.png"; sourceTree = "<group>"; };
+		CDBC4C4C1659BC5A0008FCA0 /* bg-app@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bg-app@2x.png"; sourceTree = "<group>"; };
+		CDBC4C4F1659BD3B0008FCA0 /* LoginViewController_iPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController_iPhone.h; sourceTree = "<group>"; };
+		CDBC4C501659BD3B0008FCA0 /* LoginViewController_iPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController_iPhone.m; sourceTree = "<group>"; };
+		CDBC4C511659BD3B0008FCA0 /* LoginViewController_iPhone.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoginViewController_iPhone.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +87,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD2E72101659CB1F00250D26 /* MapKit.framework in Frameworks */,
+				CD2E720E1659CB1100250D26 /* QuartzCore.framework in Frameworks */,
+				CD2E720C1659CB0400250D26 /* libTapkuLibrary.a in Frameworks */,
 				CDBC4C081659A2FD0008FCA0 /* UIKit.framework in Frameworks */,
 				CDBC4C0A1659A2FE0008FCA0 /* Foundation.framework in Frameworks */,
 				CDBC4C0C1659A2FE0008FCA0 /* CoreGraphics.framework in Frameworks */,
@@ -48,6 +99,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CD2E71FA1659BF8600250D26 /* Third-Party Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CD2E71FC1659BFD900250D26 /* TapkuLibrary.bundle */,
+				CD2E71FD1659BFD900250D26 /* TapkuLibrary.xcodeproj */,
+			);
+			name = "Third-Party Frameworks";
+			sourceTree = "<group>";
+		};
+		CD2E71FE1659BFD900250D26 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CD2E72071659BFDA00250D26 /* libTapkuLibrary.a */,
+				CD2E72091659BFDA00250D26 /* LogicTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CD2E72141659E78D00250D26 /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				CDBC4C4F1659BD3B0008FCA0 /* LoginViewController_iPhone.h */,
+				CDBC4C501659BD3B0008FCA0 /* LoginViewController_iPhone.m */,
+				CDBC4C511659BD3B0008FCA0 /* LoginViewController_iPhone.xib */,
+			);
+			name = Login;
+			sourceTree = "<group>";
+		};
+		CD2E72151659E7A900250D26 /* MyCalendar */ = {
+			isa = PBXGroup;
+			children = (
+				CD2E72111659E78600250D26 /* MyCalendarViewController_iPhone.h */,
+				CD2E72121659E78600250D26 /* MyCalendarViewController_iPhone.m */,
+			);
+			name = MyCalendar;
+			sourceTree = "<group>";
+		};
 		CDBC4BF81659A2FD0008FCA0 = {
 			isa = PBXGroup;
 			children = (
@@ -68,6 +156,8 @@
 		CDBC4C061659A2FD0008FCA0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CD2E720F1659CB1F00250D26 /* MapKit.framework */,
+				CD2E720D1659CB1100250D26 /* QuartzCore.framework */,
 				CDBC4C071659A2FD0008FCA0 /* UIKit.framework */,
 				CDBC4C091659A2FD0008FCA0 /* Foundation.framework */,
 				CDBC4C0B1659A2FE0008FCA0 /* CoreGraphics.framework */,
@@ -80,6 +170,8 @@
 			children = (
 				CDBC4C161659A2FE0008FCA0 /* AppDelegate.h */,
 				CDBC4C171659A2FE0008FCA0 /* AppDelegate.m */,
+				CDBC4C551659BD510008FCA0 /* iPad */,
+				CDBC4C541659BD400008FCA0 /* iPhone */,
 				CDBC4C0E1659A2FE0008FCA0 /* Supporting Files */,
 			);
 			path = ScheduleForward;
@@ -88,6 +180,8 @@
 		CDBC4C0E1659A2FE0008FCA0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				CD2E71FA1659BF8600250D26 /* Third-Party Frameworks */,
+				CDBC4C241659A3460008FCA0 /* Images */,
 				CDBC4C0F1659A2FE0008FCA0 /* ScheduleForward-Info.plist */,
 				CDBC4C101659A2FE0008FCA0 /* InfoPlist.strings */,
 				CDBC4C131659A2FE0008FCA0 /* main.m */,
@@ -97,6 +191,33 @@
 				CDBC4C1D1659A2FE0008FCA0 /* Default-568h@2x.png */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		CDBC4C241659A3460008FCA0 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				CDBC4C331659A57C0008FCA0 /* menu-bar.png */,
+				CDBC4C341659A57C0008FCA0 /* menu-bar@2x.png */,
+				CDBC4C4B1659BC5A0008FCA0 /* bg-app.png */,
+				CDBC4C4C1659BC5A0008FCA0 /* bg-app@2x.png */,
+			);
+			path = Images;
+			sourceTree = "<group>";
+		};
+		CDBC4C541659BD400008FCA0 /* iPhone */ = {
+			isa = PBXGroup;
+			children = (
+				CD2E72141659E78D00250D26 /* Login */,
+				CD2E72151659E7A900250D26 /* MyCalendar */,
+			);
+			name = iPhone;
+			sourceTree = "<group>";
+		};
+		CDBC4C551659BD510008FCA0 /* iPad */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = iPad;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -113,6 +234,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				CD2E720B1659CAF200250D26 /* PBXTargetDependency */,
 			);
 			name = ScheduleForward;
 			productName = ScheduleForward;
@@ -138,12 +260,35 @@
 			mainGroup = CDBC4BF81659A2FD0008FCA0;
 			productRefGroup = CDBC4C041659A2FD0008FCA0 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = CD2E71FE1659BFD900250D26 /* Products */;
+					ProjectRef = CD2E71FD1659BFD900250D26 /* TapkuLibrary.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				CDBC4C021659A2FD0008FCA0 /* ScheduleForward */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		CD2E72071659BFDA00250D26 /* libTapkuLibrary.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libTapkuLibrary.a;
+			remoteRef = CD2E72061659BFDA00250D26 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CD2E72091659BFDA00250D26 /* LogicTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = LogicTests.octest;
+			remoteRef = CD2E72081659BFDA00250D26 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		CDBC4C011659A2FD0008FCA0 /* Resources */ = {
@@ -154,6 +299,12 @@
 				CDBC4C1A1659A2FE0008FCA0 /* Default.png in Resources */,
 				CDBC4C1C1659A2FE0008FCA0 /* Default@2x.png in Resources */,
 				CDBC4C1E1659A2FE0008FCA0 /* Default-568h@2x.png in Resources */,
+				CDBC4C351659A57C0008FCA0 /* menu-bar.png in Resources */,
+				CDBC4C361659A57C0008FCA0 /* menu-bar@2x.png in Resources */,
+				CDBC4C4D1659BC5A0008FCA0 /* bg-app.png in Resources */,
+				CDBC4C4E1659BC5A0008FCA0 /* bg-app@2x.png in Resources */,
+				CDBC4C531659BD3B0008FCA0 /* LoginViewController_iPhone.xib in Resources */,
+				CD2E72031659BFD900250D26 /* TapkuLibrary.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,10 +317,20 @@
 			files = (
 				CDBC4C141659A2FE0008FCA0 /* main.m in Sources */,
 				CDBC4C181659A2FE0008FCA0 /* AppDelegate.m in Sources */,
+				CDBC4C521659BD3B0008FCA0 /* LoginViewController_iPhone.m in Sources */,
+				CD2E72131659E78600250D26 /* MyCalendarViewController_iPhone.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CD2E720B1659CAF200250D26 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = TapkuLibrary;
+			targetProxy = CD2E720A1659CAF200250D26 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		CDBC4C101659A2FE0008FCA0 /* InfoPlist.strings */ = {
@@ -238,10 +399,16 @@
 		CDBC4C221659A2FE0008FCA0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ScheduleForward/ScheduleForward-Prefix.pch";
 				INFOPLIST_FILE = "ScheduleForward/ScheduleForward-Info.plist";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = ../src/tapkulibrary/;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -249,10 +416,16 @@
 		CDBC4C231659A2FE0008FCA0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ScheduleForward/ScheduleForward-Prefix.pch";
 				INFOPLIST_FILE = "ScheduleForward/ScheduleForward-Info.plist";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = ../src/tapkulibrary/;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -276,6 +449,7 @@
 				CDBC4C231659A2FE0008FCA0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
