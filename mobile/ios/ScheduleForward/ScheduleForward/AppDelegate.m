@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "MyCalendarViewController_iPhone.h"
+#import "LoginViewController_iPhone.h"
 
 
 @implementation AppDelegate
@@ -16,12 +17,38 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
+    self.window.backgroundColor = [UIColor blackColor];
     
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        //iPad
+        
+        [self.window makeKeyAndVisible];
+    }
+    else {
+        MyCalendarViewController_iPhone *myCalendarViewController = [[MyCalendarViewController_iPhone alloc] init];
+        
+        _tabBarController = [[UITabBarController alloc] init];
+        
+        _tabBarController.viewControllers = @[myCalendarViewController];
+        
+        [_window setRootViewController:_tabBarController];
+        
+        [self.window makeKeyAndVisible];
+        
+        NSString *password = [[NSUserDefaults standardUserDefaults] objectForKey:@"password"];
+        
+        if (password == nil) {
+            
+            LoginViewController_iPhone *loginVC = [[LoginViewController_iPhone alloc] initWithNibName:@"LoginViewController_iPhone" bundle:nil];
+            UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:loginVC];
+            [_tabBarController presentViewController:navController animated:NO completion:nil];
+            [navController setNavigationBarHidden:YES];
+        }
+        else {
+            //display loading view controller
+        }
+    }
     
-    
-    
-    [self.window makeKeyAndVisible];
     return YES;
 }
 

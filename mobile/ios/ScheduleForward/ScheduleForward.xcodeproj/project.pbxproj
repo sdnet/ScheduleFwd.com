@@ -12,6 +12,24 @@
 		CD2E720E1659CB1100250D26 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD2E720D1659CB1100250D26 /* QuartzCore.framework */; };
 		CD2E72101659CB1F00250D26 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD2E720F1659CB1F00250D26 /* MapKit.framework */; };
 		CD2E72131659E78600250D26 /* MyCalendarViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = CD2E72121659E78600250D26 /* MyCalendarViewController_iPhone.m */; };
+		CD9BA8231662DFB7003BB9A6 /* standard-button-pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = CD9BA81F1662DFB7003BB9A6 /* standard-button-pressed.png */; };
+		CD9BA8241662DFB7003BB9A6 /* standard-button-pressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CD9BA8201662DFB7003BB9A6 /* standard-button-pressed@2x.png */; };
+		CD9BA8251662DFB7003BB9A6 /* standard-button.png in Resources */ = {isa = PBXBuildFile; fileRef = CD9BA8211662DFB7003BB9A6 /* standard-button.png */; };
+		CD9BA8261662DFB7003BB9A6 /* standard-button@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CD9BA8221662DFB7003BB9A6 /* standard-button@2x.png */; };
+		CD9BA8401662E6D3003BB9A6 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA82E1662E6D3003BB9A6 /* AFHTTPClient.m */; };
+		CD9BA8411662E6D3003BB9A6 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA8301662E6D3003BB9A6 /* AFHTTPRequestOperation.m */; };
+		CD9BA8421662E6D3003BB9A6 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA8321662E6D3003BB9A6 /* AFImageRequestOperation.m */; };
+		CD9BA8431662E6D3003BB9A6 /* AFJSONRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA8341662E6D3003BB9A6 /* AFJSONRequestOperation.m */; };
+		CD9BA8441662E6D3003BB9A6 /* AFNetworkActivityIndicatorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA8361662E6D3003BB9A6 /* AFNetworkActivityIndicatorManager.m */; };
+		CD9BA8451662E6D3003BB9A6 /* AFPropertyListRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA8391662E6D3003BB9A6 /* AFPropertyListRequestOperation.m */; };
+		CD9BA8461662E6D3003BB9A6 /* AFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA83B1662E6D3003BB9A6 /* AFURLConnectionOperation.m */; };
+		CD9BA8471662E6D3003BB9A6 /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA83D1662E6D3003BB9A6 /* AFXMLRequestOperation.m */; };
+		CD9BA8481662E6D3003BB9A6 /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA83F1662E6D3003BB9A6 /* UIImageView+AFNetworking.m */; };
+		CD9BA84A1662E744003BB9A6 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD9BA8491662E744003BB9A6 /* MobileCoreServices.framework */; };
+		CD9BA84C1662E749003BB9A6 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD9BA84B1662E749003BB9A6 /* SystemConfiguration.framework */; };
+		CD9BA8501662E877003BB9A6 /* APIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA84F1662E877003BB9A6 /* APIManager.m */; };
+		CD9BA8541662F183003BB9A6 /* SelectHospitalViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9BA8521662F183003BB9A6 /* SelectHospitalViewController_iPhone.m */; };
+		CD9BA8551662F183003BB9A6 /* SelectHospitalViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = CD9BA8531662F183003BB9A6 /* SelectHospitalViewController_iPhone.xib */; };
 		CDBC4C081659A2FD0008FCA0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDBC4C071659A2FD0008FCA0 /* UIKit.framework */; };
 		CDBC4C0A1659A2FE0008FCA0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDBC4C091659A2FD0008FCA0 /* Foundation.framework */; };
 		CDBC4C0C1659A2FE0008FCA0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDBC4C0B1659A2FE0008FCA0 /* CoreGraphics.framework */; };
@@ -60,6 +78,36 @@
 		CD2E720F1659CB1F00250D26 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		CD2E72111659E78600250D26 /* MyCalendarViewController_iPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyCalendarViewController_iPhone.h; sourceTree = "<group>"; };
 		CD2E72121659E78600250D26 /* MyCalendarViewController_iPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyCalendarViewController_iPhone.m; sourceTree = "<group>"; };
+		CD9BA81F1662DFB7003BB9A6 /* standard-button-pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "standard-button-pressed.png"; sourceTree = "<group>"; };
+		CD9BA8201662DFB7003BB9A6 /* standard-button-pressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "standard-button-pressed@2x.png"; sourceTree = "<group>"; };
+		CD9BA8211662DFB7003BB9A6 /* standard-button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "standard-button.png"; sourceTree = "<group>"; };
+		CD9BA8221662DFB7003BB9A6 /* standard-button@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "standard-button@2x.png"; sourceTree = "<group>"; };
+		CD9BA82D1662E6D3003BB9A6 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
+		CD9BA82E1662E6D3003BB9A6 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
+		CD9BA82F1662E6D3003BB9A6 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
+		CD9BA8301662E6D3003BB9A6 /* AFHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPRequestOperation.m; sourceTree = "<group>"; };
+		CD9BA8311662E6D3003BB9A6 /* AFImageRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFImageRequestOperation.h; sourceTree = "<group>"; };
+		CD9BA8321662E6D3003BB9A6 /* AFImageRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFImageRequestOperation.m; sourceTree = "<group>"; };
+		CD9BA8331662E6D3003BB9A6 /* AFJSONRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFJSONRequestOperation.h; sourceTree = "<group>"; };
+		CD9BA8341662E6D3003BB9A6 /* AFJSONRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFJSONRequestOperation.m; sourceTree = "<group>"; };
+		CD9BA8351662E6D3003BB9A6 /* AFNetworkActivityIndicatorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkActivityIndicatorManager.h; sourceTree = "<group>"; };
+		CD9BA8361662E6D3003BB9A6 /* AFNetworkActivityIndicatorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkActivityIndicatorManager.m; sourceTree = "<group>"; };
+		CD9BA8371662E6D3003BB9A6 /* AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworking.h; sourceTree = "<group>"; };
+		CD9BA8381662E6D3003BB9A6 /* AFPropertyListRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFPropertyListRequestOperation.h; sourceTree = "<group>"; };
+		CD9BA8391662E6D3003BB9A6 /* AFPropertyListRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFPropertyListRequestOperation.m; sourceTree = "<group>"; };
+		CD9BA83A1662E6D3003BB9A6 /* AFURLConnectionOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLConnectionOperation.h; sourceTree = "<group>"; };
+		CD9BA83B1662E6D3003BB9A6 /* AFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLConnectionOperation.m; sourceTree = "<group>"; };
+		CD9BA83C1662E6D3003BB9A6 /* AFXMLRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFXMLRequestOperation.h; sourceTree = "<group>"; };
+		CD9BA83D1662E6D3003BB9A6 /* AFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFXMLRequestOperation.m; sourceTree = "<group>"; };
+		CD9BA83E1662E6D3003BB9A6 /* UIImageView+AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+AFNetworking.h"; sourceTree = "<group>"; };
+		CD9BA83F1662E6D3003BB9A6 /* UIImageView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+AFNetworking.m"; sourceTree = "<group>"; };
+		CD9BA8491662E744003BB9A6 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		CD9BA84B1662E749003BB9A6 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		CD9BA84E1662E877003BB9A6 /* APIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIManager.h; sourceTree = "<group>"; };
+		CD9BA84F1662E877003BB9A6 /* APIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIManager.m; sourceTree = "<group>"; };
+		CD9BA8511662F183003BB9A6 /* SelectHospitalViewController_iPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectHospitalViewController_iPhone.h; sourceTree = "<group>"; };
+		CD9BA8521662F183003BB9A6 /* SelectHospitalViewController_iPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectHospitalViewController_iPhone.m; sourceTree = "<group>"; };
+		CD9BA8531662F183003BB9A6 /* SelectHospitalViewController_iPhone.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SelectHospitalViewController_iPhone.xib; sourceTree = "<group>"; };
 		CDBC4C031659A2FD0008FCA0 /* ScheduleForward.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScheduleForward.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDBC4C071659A2FD0008FCA0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		CDBC4C091659A2FD0008FCA0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -87,6 +135,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD9BA84C1662E749003BB9A6 /* SystemConfiguration.framework in Frameworks */,
+				CD9BA84A1662E744003BB9A6 /* MobileCoreServices.framework in Frameworks */,
 				CD2E72101659CB1F00250D26 /* MapKit.framework in Frameworks */,
 				CD2E720E1659CB1100250D26 /* QuartzCore.framework in Frameworks */,
 				CD2E720C1659CB0400250D26 /* libTapkuLibrary.a in Frameworks */,
@@ -102,6 +152,7 @@
 		CD2E71FA1659BF8600250D26 /* Third-Party Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CD9BA82C1662E6D3003BB9A6 /* AFNetworking */,
 				CD2E71FC1659BFD900250D26 /* TapkuLibrary.bundle */,
 				CD2E71FD1659BFD900250D26 /* TapkuLibrary.xcodeproj */,
 			);
@@ -123,6 +174,9 @@
 				CDBC4C4F1659BD3B0008FCA0 /* LoginViewController_iPhone.h */,
 				CDBC4C501659BD3B0008FCA0 /* LoginViewController_iPhone.m */,
 				CDBC4C511659BD3B0008FCA0 /* LoginViewController_iPhone.xib */,
+				CD9BA8511662F183003BB9A6 /* SelectHospitalViewController_iPhone.h */,
+				CD9BA8521662F183003BB9A6 /* SelectHospitalViewController_iPhone.m */,
+				CD9BA8531662F183003BB9A6 /* SelectHospitalViewController_iPhone.xib */,
 			);
 			name = Login;
 			sourceTree = "<group>";
@@ -134,6 +188,42 @@
 				CD2E72121659E78600250D26 /* MyCalendarViewController_iPhone.m */,
 			);
 			name = MyCalendar;
+			sourceTree = "<group>";
+		};
+		CD9BA82C1662E6D3003BB9A6 /* AFNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				CD9BA82D1662E6D3003BB9A6 /* AFHTTPClient.h */,
+				CD9BA82E1662E6D3003BB9A6 /* AFHTTPClient.m */,
+				CD9BA82F1662E6D3003BB9A6 /* AFHTTPRequestOperation.h */,
+				CD9BA8301662E6D3003BB9A6 /* AFHTTPRequestOperation.m */,
+				CD9BA8311662E6D3003BB9A6 /* AFImageRequestOperation.h */,
+				CD9BA8321662E6D3003BB9A6 /* AFImageRequestOperation.m */,
+				CD9BA8331662E6D3003BB9A6 /* AFJSONRequestOperation.h */,
+				CD9BA8341662E6D3003BB9A6 /* AFJSONRequestOperation.m */,
+				CD9BA8351662E6D3003BB9A6 /* AFNetworkActivityIndicatorManager.h */,
+				CD9BA8361662E6D3003BB9A6 /* AFNetworkActivityIndicatorManager.m */,
+				CD9BA8371662E6D3003BB9A6 /* AFNetworking.h */,
+				CD9BA8381662E6D3003BB9A6 /* AFPropertyListRequestOperation.h */,
+				CD9BA8391662E6D3003BB9A6 /* AFPropertyListRequestOperation.m */,
+				CD9BA83A1662E6D3003BB9A6 /* AFURLConnectionOperation.h */,
+				CD9BA83B1662E6D3003BB9A6 /* AFURLConnectionOperation.m */,
+				CD9BA83C1662E6D3003BB9A6 /* AFXMLRequestOperation.h */,
+				CD9BA83D1662E6D3003BB9A6 /* AFXMLRequestOperation.m */,
+				CD9BA83E1662E6D3003BB9A6 /* UIImageView+AFNetworking.h */,
+				CD9BA83F1662E6D3003BB9A6 /* UIImageView+AFNetworking.m */,
+			);
+			name = AFNetworking;
+			path = ../AFNetworking;
+			sourceTree = "<group>";
+		};
+		CD9BA84D1662E820003BB9A6 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				CD9BA84E1662E877003BB9A6 /* APIManager.h */,
+				CD9BA84F1662E877003BB9A6 /* APIManager.m */,
+			);
+			name = Utilities;
 			sourceTree = "<group>";
 		};
 		CDBC4BF81659A2FD0008FCA0 = {
@@ -156,6 +246,8 @@
 		CDBC4C061659A2FD0008FCA0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CD9BA84B1662E749003BB9A6 /* SystemConfiguration.framework */,
+				CD9BA8491662E744003BB9A6 /* MobileCoreServices.framework */,
 				CD2E720F1659CB1F00250D26 /* MapKit.framework */,
 				CD2E720D1659CB1100250D26 /* QuartzCore.framework */,
 				CDBC4C071659A2FD0008FCA0 /* UIKit.framework */,
@@ -170,6 +262,7 @@
 			children = (
 				CDBC4C161659A2FE0008FCA0 /* AppDelegate.h */,
 				CDBC4C171659A2FE0008FCA0 /* AppDelegate.m */,
+				CD9BA84D1662E820003BB9A6 /* Utilities */,
 				CDBC4C551659BD510008FCA0 /* iPad */,
 				CDBC4C541659BD400008FCA0 /* iPhone */,
 				CDBC4C0E1659A2FE0008FCA0 /* Supporting Files */,
@@ -196,6 +289,10 @@
 		CDBC4C241659A3460008FCA0 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				CD9BA81F1662DFB7003BB9A6 /* standard-button-pressed.png */,
+				CD9BA8201662DFB7003BB9A6 /* standard-button-pressed@2x.png */,
+				CD9BA8211662DFB7003BB9A6 /* standard-button.png */,
+				CD9BA8221662DFB7003BB9A6 /* standard-button@2x.png */,
 				CDBC4C331659A57C0008FCA0 /* menu-bar.png */,
 				CDBC4C341659A57C0008FCA0 /* menu-bar@2x.png */,
 				CDBC4C4B1659BC5A0008FCA0 /* bg-app.png */,
@@ -305,6 +402,11 @@
 				CDBC4C4E1659BC5A0008FCA0 /* bg-app@2x.png in Resources */,
 				CDBC4C531659BD3B0008FCA0 /* LoginViewController_iPhone.xib in Resources */,
 				CD2E72031659BFD900250D26 /* TapkuLibrary.bundle in Resources */,
+				CD9BA8231662DFB7003BB9A6 /* standard-button-pressed.png in Resources */,
+				CD9BA8241662DFB7003BB9A6 /* standard-button-pressed@2x.png in Resources */,
+				CD9BA8251662DFB7003BB9A6 /* standard-button.png in Resources */,
+				CD9BA8261662DFB7003BB9A6 /* standard-button@2x.png in Resources */,
+				CD9BA8551662F183003BB9A6 /* SelectHospitalViewController_iPhone.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,6 +421,17 @@
 				CDBC4C181659A2FE0008FCA0 /* AppDelegate.m in Sources */,
 				CDBC4C521659BD3B0008FCA0 /* LoginViewController_iPhone.m in Sources */,
 				CD2E72131659E78600250D26 /* MyCalendarViewController_iPhone.m in Sources */,
+				CD9BA8401662E6D3003BB9A6 /* AFHTTPClient.m in Sources */,
+				CD9BA8411662E6D3003BB9A6 /* AFHTTPRequestOperation.m in Sources */,
+				CD9BA8421662E6D3003BB9A6 /* AFImageRequestOperation.m in Sources */,
+				CD9BA8431662E6D3003BB9A6 /* AFJSONRequestOperation.m in Sources */,
+				CD9BA8441662E6D3003BB9A6 /* AFNetworkActivityIndicatorManager.m in Sources */,
+				CD9BA8451662E6D3003BB9A6 /* AFPropertyListRequestOperation.m in Sources */,
+				CD9BA8461662E6D3003BB9A6 /* AFURLConnectionOperation.m in Sources */,
+				CD9BA8471662E6D3003BB9A6 /* AFXMLRequestOperation.m in Sources */,
+				CD9BA8481662E6D3003BB9A6 /* UIImageView+AFNetworking.m in Sources */,
+				CD9BA8501662E877003BB9A6 /* APIManager.m in Sources */,
+				CD9BA8541662F183003BB9A6 /* SelectHospitalViewController_iPhone.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
