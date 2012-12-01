@@ -29,20 +29,13 @@
 {
     [super viewDidLoad];
     
+    self.title = @"Select your hospital";
+    
     _hospitalArray = [[NSMutableArray alloc] init];
     _filteredhospitalArray = [[NSMutableArray alloc] init];
+    
 
-    [_hospitalArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"tiger woods", @"name", nil]];
-    [_hospitalArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"tom smallwood", @"name", nil]];
-    [_hospitalArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"tart anderson", @"name", nil]];
-    [_hospitalArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"tim allen", @"name", nil]];
-    [_hospitalArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"rosa parks", @"name", nil]];
-    
-    NSArray *groupCodeArray = [[APIManager sharedApiManager] fetchGroupCodesAndNames];
-    
-    NSLog(@"%@", groupCodeArray);
-    
-    [[self tableView] reloadData];
+    [[APIManager sharedApiManager] fetchGroupCodesAndNamesFor:self];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -190,6 +183,14 @@
     
     // Return YES to cause the search result table view to be reloaded.
     return YES;
+}
+
+#pragma mark - data calls
+
+- (void)loadGroups:(NSArray *)groups {
+    _hospitalArray = [NSMutableArray arrayWithArray:groups];
+    [self.tableView reloadData];
+    
 }
 
 

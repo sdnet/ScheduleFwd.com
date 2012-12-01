@@ -14,4 +14,6 @@
 @property (nonatomic, strong) NSMutableArray *filteredhospitalArray;
 @property (strong, nonatomic) IBOutlet UISearchBar *hospitalSearchBar;
 
+- (void)loadGroups:(NSArray *)groups;
+
 @end

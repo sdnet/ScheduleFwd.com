@@ -52,27 +52,25 @@ static NSString *API_ENDPOINT = @"http://schedulefwd.com/dev/ws";
     return NO;
 }
 
-- (NSArray *)fetchGroupCodesAndNames {
+- (void)fetchGroupCodesAndNamesFor:(SelectHospitalViewController_iPhone *)controller {
     NSString *path = [API_ENDPOINT stringByAppendingPathComponent:@"/getGroupCodes"];
     NSURL *url = [NSURL URLWithString:path];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     __block NSArray *groupArray = nil;
     
+    
+    
     AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
         
         if ([[JSON objectForKey:@"message"] isEqualToString:@"success"]) {
             groupArray = [JSON objectForKey:@"data"];
-            NSLog(@"%@", groupArray);
+            
+            [controller loadGroups:groupArray];
         }
-        
     } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
         groupArray = nil;
     }];
     [operation start];
-    
-    
-    
-    return groupArray;
 }
 
 @end

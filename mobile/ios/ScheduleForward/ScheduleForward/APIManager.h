@@ -7,11 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SelectHospitalViewController_iPhone.h"
 
 @interface APIManager : NSObject
 
 + (APIManager *)sharedApiManager;
 - (BOOL)setUserName:(NSString *)userName andPassword:(NSString *)password;
-- (NSArray *)fetchGroupCodesAndNames;
+- (void)fetchGroupCodesAndNamesFor:(SelectHospitalViewController_iPhone *)controller;
 
 @end
