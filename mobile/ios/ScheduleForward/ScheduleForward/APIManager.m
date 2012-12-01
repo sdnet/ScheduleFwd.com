@@ -13,7 +13,7 @@
 
 static APIManager *sharedInstance = nil;
 
-static NSString *API_ENDPOINT_LOGIN = @"http://schedulefwd.com/ws/LoginUser";
+static NSString *API_ENDPOINT = @"http://schedulefwd.com/dev/ws";
 
 + (APIManager *)sharedApiManager {
     static dispatch_once_t pred;        // Lock
@@ -47,18 +47,32 @@ static NSString *API_ENDPOINT_LOGIN = @"http://schedulefwd.com/ws/LoginUser";
 #pragma mark - Login Methods
 
 - (BOOL)setUserName:(NSString *)userName andPassword:(NSString *)password {
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:API_ENDPOINT_LOGIN]];
-    AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
-        NSLog(@"Name: %@ %@", [JSON valueForKeyPath:@"first_name"], [JSON valueForKeyPath:@"last_name"]);
-    } failure:nil];
     
-    [operation start];
     
     return NO;
 }
 
-- (NSDictionary *)fetchGroupCodesAndNames {
-    return nil;
+- (NSArray *)fetchGroupCodesAndNames {
+    NSString *path = [API_ENDPOINT stringByAppendingPathComponent:@"/getGroupCodes"];
+    NSURL *url = [NSURL URLWithString:path];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    __block NSArray *groupArray = nil;
+    
+    AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+        
+        if ([[JSON objectForKey:@"message"] isEqualToString:@"success"]) {
+            groupArray = [JSON objectForKey:@"data"];
+            NSLog(@"%@", groupArray);
+        }
+        
+    } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
+        groupArray = nil;
+    }];
+    [operation start];
+    
+    
+    
+    return groupArray;
 }
 
 @end

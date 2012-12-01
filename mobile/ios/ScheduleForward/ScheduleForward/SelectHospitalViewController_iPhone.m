@@ -7,6 +7,7 @@
 //
 
 #import "SelectHospitalViewController_iPhone.h"
+#import "APIManager.h"
 
 @interface SelectHospitalViewController_iPhone ()
 
@@ -36,6 +37,10 @@
     [_hospitalArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"tart anderson", @"name", nil]];
     [_hospitalArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"tim allen", @"name", nil]];
     [_hospitalArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"rosa parks", @"name", nil]];
+    
+    NSArray *groupCodeArray = [[APIManager sharedApiManager] fetchGroupCodesAndNames];
+    
+    NSLog(@"%@", groupCodeArray);
     
     [[self tableView] reloadData];
 }

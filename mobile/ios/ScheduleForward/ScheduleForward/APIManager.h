@@ -12,6 +12,6 @@
 
 + (APIManager *)sharedApiManager;
 - (BOOL)setUserName:(NSString *)userName andPassword:(NSString *)password;
-- (NSDictionary *)fetchGroupCodesAndNames;
+- (NSArray *)fetchGroupCodesAndNames;
 
 @end
