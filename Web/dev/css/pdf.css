@@ -1,0 +1,42 @@
+
+#wrapper {
+	margin: 0 auto;
+}
+
+#header {
+	width: 98%; 
+	background-color: #E6E6E6; 
+	margin: 0 auto; 
+	padding: 10px; 
+	padding-left: 60px;
+	text-align: center;
+	font: 1.6em Tahoma, Geneva, sans-serif;	
+}
+
+#content {
+	width: 95%; 
+	margin: 0 auto;
+	padding: 20px;
+}
+
+h1 {
+	font: 2.0em Georgia, "Times New Roman", Times, serif;	
+}
+
+p {
+	font: 1.0em Georgia, "Times New Roman", Times, serif;		
+}
+
+#createPDF {
+	width: 95%;
+	text-align: right;
+	padding: 10px;
+	cursor: pointer;	
+}
+
+#createPDF a {
+	background-color: #000;
+	color: #FFF;
+	padding: 5px;
+	text-decoration: underline;		
+}

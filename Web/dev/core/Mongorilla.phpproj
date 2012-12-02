@@ -1,0 +1,63 @@
+"General"
+{
+"ProjectType" = "local"
+"AutoLoadTemplate" = "%s.php;class.%s.php;"
+"IncludeDirs" = ""
+}
+"Configurations"
+{
+    "Local|PHP 5.3"
+    {
+    }
+    "Staging|PHP 5.3"
+    {
+    }
+    "Production|PHP 5.3"
+    {
+    }
+}
+"Files"
+{
+    "config.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "mg_base.class.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "mg_db.class.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "mg_errors.class.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "mg_module.class.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "mg_utility.class.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "Modules"
+    {
+    "ProjRelPath" = "T"
+    }
+    "Modules\\user_module.inc.php"
+    {
+    "ProjRelPath" = "T"
+    }
+}
+"ProjStartupServices"
+{
+}
+"Globals"
+{
+}
+"References"
+{
+"PhpReference" = "mongo"
+}
