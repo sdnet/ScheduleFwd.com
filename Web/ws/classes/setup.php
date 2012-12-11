@@ -1,17 +1,46 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+
 require('hash.php');
 require_once('' . $_SERVER['DOCUMENT_ROOT'] . '/core/mg_base.class.php');
-class Setup{
+class setup{
 	
 
 	public $groupcode;
 	private $db;
 	public $progress;
 	
-	public function __construct($groupcode){
+	public function __construct($groupcode, $name){
+			
 		$this->db = new MONGORILLA_DB;
-		$this->groupcode = $groupcode;
-		$this->progress = 'Start';
+		
+		$where = array('groupcode' => $groupcode);
+		
+		$arg = array('col' => 'mongorilla', 'type' => 'user', 'where' => $where);
+	
+		$results = $this->db->find($arg);
+		
+		if($results == null) {
+			$this->groupcode = $groupcode;
+			$this->progress = 'Start';
+			
+			$this->createNewHospitalCode($groupcode, $name);
+			
+			echo("new hospital added: ".$groupcode);
+		}
+		else {
+			echo $groupcode."Hospital already exists.";
+		}		
+	}
+	
+	public function createNewHospitalCode($groupcode, $name) {
+		//insert the group code into mongorilla
+		
+		$obj = array('groupcode' => $groupcode, 'name' => $name);
+		$arg = array('col' => 'mongorilla', 'type' => 'user', 'obj' => $obj);
+		$results = $this->db->upsert($arg);
 	}
 	
 	public function setEvents(){
@@ -75,7 +104,7 @@ class Setup{
 		$results = $this->db->upsert($arg);		
 		}
 		
-		public function setUsers(){
+		public function setUsers($password){
 		//Default admin user
 		$obj = array('user_name' => 'scribe','active' => new MongoInt32(1),'email' => 'staff@hospital.com','first_name' => 'Staff','last_name' => 'Scribe','phone' => '(234) 222-3999','group' => 'Staff','role' => 'Scribe','date_created' => new MongoDate(1347507023, 718000),'password' => '' . create_hash($password) . '');
 		$arg = array('col' => $this->groupcode, 'type' => 'user', 'obj' => $obj);

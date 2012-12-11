@@ -14,6 +14,8 @@
 <script src="/js/jquery.freeow.min.js" type="text/javascript"></script>
 <script src="/js/freeow-demo.js" type="text/javascript"></script>
 <script language="javascript" src="../js/modal.popup.js"></script>
+<script language="javascript" src="../js/spin.min.js"></script>
+<script language="javascript" src="../js/jquery.tablesorter.min.js"></script>
 <style type='text/css'>
 		#calendar {
 			width: 95%;
@@ -75,6 +77,14 @@ $(function() {
  
 });
 
+function getScheduleStats(month, year) {
+	$.ajaxSetup({async:false});
+	$.post('../ws/getScheduleStats', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","month":month,"year":year} , function(data) {
+		if (data.message == "success") {
+			return data.data;
+		}
+	});
+}
 
 function publishSchedule() {
 	if (confirm("Are you sure you would like to publish this schedule?  After publishing, the schedule will be viewable by all providers.")) {
@@ -92,10 +102,10 @@ function regenerateSchedule() {
 	$('#publishScheduleWaiting').show();
 	$.post('../ws/generateSchedule', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","scheduleId":window.scheduleId,"month":m,"year":y} , function(data) {
 		$('#publishSchedule').css("width","400px;");
-		$('#publishSchedule').html("Schedule successfully re-generated.  It is NOT yet published.");
+		$('#publishSchedule').html("Schedule successfully generated.  It is NOT yet published.");
 	});	
 	$('#publishScheduleWaiting').fadeOut();
-	// location.reload();
+	location.reload();
 }
 
 function createPDF() {
@@ -155,13 +165,15 @@ if ($role == "Admin") {
                     <li><span style="cursor: pointer; border-bottom: 1px dotted #CCC;" onClick="toggleShifts('open')"><a name="openShifts">Open shifts</a></span></li>
                     <li><span style="cursor: pointer; border-bottom: 1px dotted #CCC;" onClick="regenerateSchedule()"><a name="regen">Re-generate Schedule</a></span></li>
                     <li><span style="cursor: pointer; border-bottom: 1px dotted #CCC;" onClick=""><a id="printLink" href="">Print Schedule</a></span></li>
-                    <span id="archiveDisplayStart" style="display: none;">
-                    	<li><a href="" id="archiveStart" href="">Start Archive Print</a></li>
+                    <span id="archiveDisplay" style="display: none;">
+                        <span id="archiveDisplayStart" style="display: none;">
+                            <li><a href="" id="archiveStart" href="">Start Archive Print</a></li>
+                        </span>
+                        <span id="archiveDisplayEnd" style="display: none;">
+                            <li><a href="" id="archiveEnd" href="">End Archive Print</a></li>
+                        </span>
                     </span>
-                    <span id="archiveDisplayEnd" style="display: none;">
-                        <li><a href="" id="archiveEnd" href="">End Archive Print</a></li>
-                    </span>
-                    <li><a id="printLink" onclick="displayStatsPopup()"><img src="../images/statistics.png" style="width: 25px; height: 25px; margin-top: 8px;" /></a></li>
+                    <li><a id="printLink" onclick="displayStatsPopup()"><img src="../images/statistics.png" id="statsLink" style="width: 25px; height: 25px; margin-top: 8px;" /></a></li>
                 </ul>
             </div>
         </div>
@@ -207,15 +219,81 @@ if ($role == "Admin") {
 
 <script type='text/javascript'>
 
-//This method initialises the modal popup
 function displayStatsPopup(scheduleId, shiftId) {
-	var source = '<div style="float: right;"><img src="../images/big_x.png" onclick="closePopup(300,\'norefresh\')" style="cursor: pointer; margin-top: -35px; margin-right: -36px;" title="Close Window" /></div>';
-	source = source + '<h1 style="text-align: center; font: 1.8em Verdana;">Monthly scheduling statistics</h1>';
+	$('#statsLink').attr("src","../images/ajax-loader2.gif");
+	displayStatsPopup2(scheduleId, shiftId);
+}
+
+//This method initialises the modal popup
+function displayStatsPopup2(scheduleId, shiftId) {
+	var stats;
+	
+	var date = new Date();
+	var d = date.getDate();
+	
+	m = date.getMonth();
+	y = date.getFullYear();
+	m++;
+	if (m < 10) {
+		m = "0" + m;	
+	}
+	
+	var month = getParameterByName("month");
+	var year = getParameterByName("year");
+	
+	if ((month != undefined) && (month != "")) {
+		m = month;	
+	}
+		
+	if ((year != undefined) && (year != "")) {
+		y = year;	
+	}
+	
+	$.post('../ws/getScheduleStats', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","month":m,"year":y} , function(data) {
+		if (data.message == "success") {
+			stats = data.data;		
+		}
+	});
+
+	var statsDisplay = "<table style=\"width: 100%; margin: 0px;\" id=\"scheduleStats\" class=\"tablesorter\">";
+		statsDisplay += "<thead>";
+			statsDisplay += "<tr>";
+				statsDisplay += "<th style=\"width: 250px;\">User</th><th>Total Hours</th><th>Number of Shifts</th><th>Weekend Shifts</th><th>Night Shifts</th><th>Timeoffs</th><th>Avg Hours / Shift</th>";
+			statsDisplay += "</tr>";
+		statsDisplay += "</thead>";
+		statsDisplay += "<tbody>";
+			jQuery.each(stats, function() {
+				statsDisplay += "<tr>";
+					statsDisplay += "<td style=\"text-align: left; padding-left: 5px; font-size: larger;\"><span style=\"font-weight: bold;\">" + this.userName + "</span></td>";
+					statsDisplay += "<td style=\"text-align: center;\">" + this.totalhours + "</td>";
+					statsDisplay += "<td style=\"text-align: center;\">" + this.numshifts + "</td>";
+					statsDisplay += "<td style=\"text-align: center;\">" + this.numWeekendShifts + "</td>";
+					statsDisplay += "<td style=\"text-align: center;\">" + this.numNightShifts + "</td>";
+					statsDisplay += "<td style=\"text-align: center;\">" + this.totalTimeOff + "</td>";
+					statsDisplay += "<td style=\"text-align: center;\">" + this.averageHoursPerShift + "</td>";	
+				statsDisplay += "</tr>";
+			});
+		statsDisplay += "</tbody>";
+	statsDisplay += "</table>";
+	
+	var source = "";
+	
+	source += '<div style="width: 100%; text-align: center; background-color: #F2F2F2; font: 1.6em Georgia; border-bottom: 1px solid #E6E6E6;">';
+		source += '<div style="padding: 3px;">';
+		source += '<img src="/images/table.png" /> Monthly Scheduling Statistics <img src="/images/table.png" />';
+		source += '</div>';
+	source += '</div>';
+	
+	source += '<div style="width: 100%; text-align: center;"><a style="cursor: pointer;" onclick="closePopup(300,\'norefresh\')">Close Stats Window</a></div>';
+	source = source + '<div style="overflow: auto;">';
+	source = source + statsDisplay;
+	  source = source + '</div>';
+	source += '<div style="width: 100%; text-align: center;"><a style="cursor: pointer;" onclick="closePopup(300,\'norefresh\')">Close Stats Window</a></div>';
 	
 	var align = 'center';									//Valid values; left, right, center
 	var top = 100; 											//Use an integer (in pixels)
-	var width = 700; 										//Use an integer (in pixels)
-	var padding = 10;										//Use an integer (in pixels)
+	var width = 800; 										//Use an integer (in pixels)
+	var padding = 0;										//Use an integer (in pixels)
 	var backgroundColor = '#FFFFFF'; 						//Use any hex code
 	var borderColor = '#333333'; 							//Use any hex code
 	var borderWeight = 4; 									//Use an integer (in pixels)
@@ -225,6 +303,17 @@ function displayStatsPopup(scheduleId, shiftId) {
 	var disableOpacity = 40; 								//Valid range 0-100
 	var loadingImage = '/images/ajax-loader.gif';		//Use relative path from this page
 	modalPopup(align, top, width, padding, disableColor, disableOpacity, backgroundColor, borderColor, borderWeight, borderRadius, fadeOutTime, source, loadingImage);
+	$("#scheduleStats").tablesorter(); 
+	$("#scheduleStats tr").not(':first').hover(
+	  function () {
+		$(this).css("background","yellow");
+	  }, 
+	  function () {
+		$(this).css("background","");
+	  }
+	);
+	
+	$('#statsLink').attr("src","../images/statistics.png");	
 }
 
 function constructLinkForPrintSchedule(m,y) {
@@ -282,6 +371,7 @@ jQuery.fn.center = function () {
         m = date.getMonth();
         y = date.getFullYear();
 		m++;
+		
 		if (m < 10) {
 			m = "0" + m;	
 		}
@@ -289,24 +379,34 @@ jQuery.fn.center = function () {
 		m2 = m;
 		y2 = y;
 		
+		var scheduleDate = new Date();
 		var month = getParameterByName("month");
 		var year = getParameterByName("year");
 		
-		// Determine whether or not to display the print archive link
-		if ((month != undefined) && (year != undefined)) {
-			if (y > year) {
-				$('#archiveDisplayStart').show();
-				$('#archiveDisplayEnd').show();
-			} else if (m > month) {
-				$('#archiveDisplayStart').show();
-				$('#archiveDisplayEnd').show();
-			} else if (m == month) {
-				$('#archiveDisplayStart').show();	
-			}
-		} else {
-			$('#archiveDisplay').show();
+		month2 = month;
+		month2--;
+		year2 = year;
+		
+		if ((month2 != undefined) && (month2 != "")) {
+			scheduleDate.setMonth(month2);	
 		}
 		
+		if ((year2 != undefined) && (year2 != "")) {
+			scheduleDate.setYear(year2);	
+		}
+		
+		// Determine whether or not to display the print archive links
+		if ((month <= m) && (year2 <= y)) {
+			$('#archiveDisplay').show();
+			$('#archiveDisplayStart').show();
+		}
+
+		if ((month != "") && (month < m) && (year2 <= y)) {
+			$('#archiveDisplay').show();
+			$('#archiveDisplayEnd').show();
+		}
+		// End Determine whether or not to display the print archive links
+
 		if ((month != undefined) && (month != "")) {
 			m = month;	
 		}
@@ -345,6 +445,7 @@ jQuery.fn.center = function () {
 			
 			if (window.isPublished != "1") {
 				$('#publishSchedule').fadeIn();	
+				$('#archiveDisplay').hide();
 			}
 		
 		}
@@ -460,6 +561,7 @@ jQuery.fn.center = function () {
 				});
 				$('#users_'+scheduleId+shiftId).append("<div style=\"margin-left: 3px; margin-bottom: 0px; margin-top: 0px; line-height: 12px;\">" + displayUser + "</div>");
 				var numOfDivs = $('#users_'+scheduleId+shiftId).find('.usersInShift').size();
+				$(tThis).hide();
 			}
 		});
 		
@@ -895,9 +997,16 @@ jQuery.fn.center = function () {
 			shiftObj = data.data;
 		});
 		
+		var start = shiftObj.start.split(" ");
+		start = start[0];
+		
+		var end = shiftObj.endreal.split(" ");
+		end = end[0];
+		
 		var source = '<div style="float: right;"><img src="../images/big_x.png" onclick="closePopup(300)" style="cursor: pointer; margin-top: -35px; margin-right: -36px;" title="Close Window" /></div>';
-		source = source + '<h2 style="text-align: center;">' + shiftObj.shiftName + '</h2>';
-		source = source + '<strong>' + shiftObj.start + ' through ' + shiftObj.end + '</strong> <br />';
+		source = source + '<div id="divSpinner" style="display: none; width: 100%; text-align: center;"><img src="/images/ajax-loader.gif"></div>';
+		source = source + '<h2 style="text-align: center; font: 1.4em Verdana; margin-bottom: 3px;">' + shiftObj.shiftName + '</h2>';
+		source = source + '<div style="margin: 0 auto; width: 80%; text-align: center;"><span style="font-weight: bold;">' + start + " at " + getTimeFromDate(shiftObj.start) + '</span> through <span style="font-weight: bold;">' + end + " at " + getTimeFromDate(shiftObj.end) + '</span></div>';
 		source = source + '<div style="text-align: left;">';
 			source = source + '<div style="width: 250px; float: right; text-align: right; padding-right: 20px; font-size: 0.9em;"><img src="../images/user_add.png" /> ';
 			source = source + '<span style="cursor: pointer; text-decoration: Underline;" id="addUsers" class=\''+scheduleId+shiftId+'\' onclick="preProcessAddUserToShift(\''+scheduleId+'\',\''+shiftId+'\')">Add users</span>';
@@ -923,12 +1032,24 @@ jQuery.fn.center = function () {
 				}
 			}
 			source = source + '</div>';
-			source = source + '<h3 style="margin-bottom: 3px;">Shift trade history</h3>';
-			source = source + '<table style="width: 100%; border: 1px solid #CCC;">';
-				source = source + '<thead><th style="width: 100px; background-color: #CCC;">&nbsp; Date</th><th style="background-color: #CCC;">&nbsp; From</th><th style="background-color: #CCC;">&nbsp; To</th></head>';
-					source = source + '<tbody style="border-bottom: 1px dotted #666;">';
-						source = source + '<tr><td>2012-08-30</td><td>Steve Adcock</td><td>James Flanagan</td></tr>';
-						source = source + '<tr><td>2012-08-29</td><td>George Corliss</td><td>Andy Walker</td></tr>';
+			var historyObj = "";
+			$.post('../ws/getTradeHistory', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","shiftId":shiftId,"scheduleId":scheduleId} , function(data) {
+				historyObj = data.data;
+			});
+			
+			source = source + '<div style="font: 1.2em Verdana; margin-bottom: 3px;">Shift trade history</div>';
+			source = source + '<table style="width: 100%;">';
+				source = source + '<thead><th style="width: 150px; font-weight: bold; background-color: #BFCBD4;">&nbsp; Approved Date</th><th style="background-color: #BFCBD4; font-weight: bold;">&nbsp; From Provider</th><th style="background-color: #BFCBD4; font-weight: bold;">&nbsp; To Provider</th></head>';
+					source = source + '<tbody>';
+						if (historyObj != null) {
+							for (var i = 0; i < historyObj.length; i++) {
+								var fromName = historyObj[i].original_user.first_name + " " + historyObj[i].original_user.last_name;
+								var toName = historyObj[i].target_user.first_name + " " + historyObj[i].target_user.last_name;
+								source = source + '<tr style="border-bottom: 1px dotted #E6E6E6;"><td style="padding: 5px; background-color: #FFF;">' + historyObj[i].date_created + '</td><td style="padding: 5px; background-color: #FFF;">' + fromName + '</td><td style="padding: 5px; background-color: #FFF;">' + toName + '</td></tr>';
+							}
+						} else {
+							source = source + '<tr><td colspan="3" style="padding: 5px; background-color: #FFF;">No trade history available for this shift</td></tr>';
+						}
 					source = source + '</tbody>';
 			source = source + '</table>';
 		source = source + '</div>';

@@ -11,7 +11,11 @@ else {
 	$year = Date("Y",$advanceDate);
 }
 
+$print = $_GET['print'];
+
 $passedInUser = $_SESSION['_id'];
+$gpCode = $_SESSION['grpcode'];
+$sessionId = session_id();
 
 if ($passedInUser != "") {
 		$shiftList = getShiftListWithId($sessionId, $_SESSION['grpcode'], $passedInUser, $group, $month, $year);
@@ -52,6 +56,36 @@ if ($shiftList != null) {
 			$theDay = $day;
 		}
 		
+		if ($shiftList[$i]['shiftName'] == "Test for deletion") {
+			print_r($shiftList[$i]['start']);
+		}
+		
+		$startTime = $shiftList[$i]['start'];
+		$startTime = explode(' ', $startTime);
+		$startTime = $startTime[0];
+		$startTime = explode(':', $startTime);
+		$startTime = intVal($startTime[0]);
+		
+		if($startTime > 12) {
+			$startTime = ($startTime - 12)."pm";
+		}
+		else {
+			$startTime = $startTime."am";
+		}
+		
+		$endTime = $shiftList[$i]['start'];
+		$endTime = explode(' ', $endTime);
+		$endTime = $endTime[0];
+		$endTime = explode(':', $endTime);
+		$endTime = intVal($endTime[0]);
+		
+		if($endTime > 12) {
+			$endTime = ($endTime - 12)."pm";
+		}
+		else {
+			$endTime = $endTime."am";
+		}
+		
 		
 		// Make another date instance to determine whether or not the viewable month is changable
 		$tmpDate = date("Y-m-d");
@@ -59,7 +93,7 @@ if ($shiftList != null) {
 		$month2 = date("m",$advanceDate2);
 		$year2 = date("Y",$advanceDate2);
 		
-		$content = "<span id=\"".$shiftList[$i]['id']."_".$shiftList[$i]['shiftId']."\" shiftDate=\"".$startDate."\" style=\"text-decoration: ".$textdecoration."; font-weight: ".$fontweight."\" class=\"shifts\">".$shiftList[$i]['shiftName']."</span><br />";
+		$content = "<span id=\"".$shiftList[$i]['id']."_".$shiftList[$i]['shiftId']."\" shiftDate=\"".$startDate."\" style=\"text-decoration: ".$textdecoration."; font-weight: ".$fontweight."\" class=\"shifts\">".$shiftList[$i]['shiftName']."</span><span style=\"font-size:1.0em;\"> (".$startTime."-".$endTime.")</span><br />";
 		
 		array_push($shiftArr, $content);
 		
@@ -98,6 +132,7 @@ $htmlBody = $htmlBody."<html id=\"pageHTML\">
             
             <!-- Content -->
             <div id=\"content\">
+
             
     <form id=\"frmTimeOff\" action=\"/ws/createPDF.php\" method=\"post\">
     <input type=\"hidden\" id=\"contentId\" name=\"content\" value=\"\" />
@@ -125,35 +160,39 @@ $htmlBody = $htmlBody."<html id=\"pageHTML\">
 	// $month =  date('n',strtotime("+$offset months", $today));
 	$days = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 	
-	//Here we generate the first day of the month 
-	$first_day = mktime(0,0,0,$month, 1, $year) ; 
+	// Here we generate the first day of the month (starting on Monday, so we subtract a day)
+	$first_day = mktime(0,0,0,$month, 1, $year)-1;
 	
-	//This gets us the month name 
-	$title = date('F', $first_day); 
+	// When on the 1st, the month will read the 31st of the previous month due to our offset
+	// subtraction above; keep a non-offset date available for month display
+	$first_day_without_offset = mktime(0,0,0,$month, 1, $year);
+	
+	// This gets us the month name
+	$title = date('F', $first_day_without_offset);
 	 
 	//Here we find out what day of the week the first day of the month falls on 
 	$day_of_week = date('D', $first_day) ; 
 	
 	//Once we know what day of the week it falls on, we know how many blank days occure before it. 
-	switch($day_of_week){ 
-		case "Sun": $blank = 0; break; 
-		case "Mon": $blank = 1; break; 
-		case "Tue": $blank = 2; break; 
-		case "Wed": $blank = 3; break; 
-		case "Thu": $blank = 4; break; 
-		case "Fri": $blank = 5; break; 
-		case "Sat": $blank = 6; break; 
-	}
+	 switch($day_of_week) { 
+		 case "Mon": $blank = 1; break; 
+		 case "Tue": $blank = 2; break; 
+		 case "Wed": $blank = 3; break; 
+		 case "Thu": $blank = 4; break; 
+		 case "Fri": $blank = 5; break; 	
+		 case "Sat": $blank = 6; break; 
+		 case "Sun": $blank = 7; break; 
+	 }
 	
 	//We then determine how many days are in the current month
 	$days_in_month = cal_days_in_month(0, $month, $year) ;
 	
 	//Here we start building the table heads 
-    $htmlBody = $htmlBody."<table id=\"tblShiftTrade\">
+    $htmlBody = $htmlBody."<table id=\"tblShiftTrade\" style=\"width:100%\">
                            <tr><th colspan=7> $title $year </th></tr>
-                           <tr id=\"tblShiftTradeDays\"><td width=42>S</td><td width=42>M</td><td 
-                                    		width=42>T</td><td width=42>W</td><td width=42>T</td><td 
-                                    		width=42>F</td><td width=42>S</td></tr>";
+                           <tr id=\"tblShiftTradeDays\"><td width=42>M</td><td width=42>T</td><td 
+                                    		width=42>W</td><td width=42>TH</td><td width=42>F</td><td 
+                                    		width=42>S</td><td width=42>Su</td></tr>";
 
                                      //This counts the days in the week, up to 
                                      $day_count = 1;
@@ -212,6 +251,10 @@ else {
     
     $htmlBody = $htmlBody."<p>There are no shifts created for this user group.</p></div></div></body></html>";
 }
+
+	if($print == 1) {
+	    toPdf($htmlBody, $sessionId, $gpCode);
+    }
                                      
     echo($htmlBody);
     
@@ -222,8 +265,7 @@ else {
 	    
 	    $response = do_post_request('http://schedulefwd.com/ws/getTimeOffSchedule', $data);
 	    
-	    $response = json_decode($response, true);
-	    
+	    $response = json_decode($response, true);	    
 	    
 	    return $response['data'];
 	}
@@ -262,6 +304,18 @@ else {
         throw new Exception("Problem reading data from $url, $php_errormsg");
      }
      	return $response;
+     }
+     
+     function toPdf($stringContent, $sessId, $grpCode) {
+	     $data_array = array('id'=>$_SESSION['_id'],'sessionId'=>$sessId,'grpcode'=>$grpCode, 'content'=>$stringContent, 'type'=>'timeoff');
+	     $data = http_build_query($data_array);
+	     
+	     
+	     $response = do_post_request('http://schedulefwd.com/ws/createPDF', $data);
+	    
+	    header('Content-disposition: attachment; filename=schedule.pdf');
+	    header('Content-type: application/pdf');
+	    echo $response; 
      }
     
 ?>

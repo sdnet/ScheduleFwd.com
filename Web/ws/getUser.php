@@ -28,7 +28,7 @@ if(VerifySession($sessionId,$groupcode,false,false) == true){
 		$userIdArray = Array('id' => $userId);
 	}
 				//$where = array('email' => "$email", 'user_name' => "$username", 'first_name' => "$firstName", 'last_name' => "$lastName", 'group' => "$group", 'role' => "$role");
-	$arg = array('col' => "$groupcode", 'type' => 'user', 'limit' => 1, 'where' => $where, 'keys' => array("first_name" => 1, "user_name" => 1, "last_name" => 1, "email" => 1,"phone" => 1,"role" => 1,"_id" => 1, "priority" => 1, "group" => 1, 'max_hours' => 1, 'min_hours' => 1, 'picture' => 1, 'location' => 1, 'scheduleProvider' => 1));
+	$arg = array('col' => "$groupcode", 'type' => 'user', 'limit' => 1, 'where' => $where, 'keys' => array("first_name" => 1, "user_name" => 1, "last_name" => 1, "email" => 1,"phone" => 1,"role" => 1,"_id" => 1, "priority" => 1, "group" => 1, 'max_hours' => 1, 'min_hours' => 1, 'picture' => 1, 'location' => 1, 'scheduleProvider' => 1, 'preferences.not_shifts' => 1));
 	if(isset($userIdArray)){
 		$arg = array_merge($userIdArray, $arg);
 	}

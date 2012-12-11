@@ -19,7 +19,7 @@ if(VerifySession($sessionId,$groupcode,$_SESSION['_id'],'Admin') == true){
 			$message =  "emptyFields";
 		} else {
 			//check to see if shift exists
-		$schedule = getScheduleById($groupcode,$scheduleId);
+		/*$schedule = getScheduleById($groupcode,$scheduleId);
 		if($schedule != null){	
 			foreach($schedule['schedule'] as $pKey=>$shift){
 				if($shift['id'] == $shiftId)
@@ -44,7 +44,24 @@ if(VerifySession($sessionId,$groupcode,$_SESSION['_id'],'Admin') == true){
 			}
 			$obj = array_filter($schedule);
 			//$obj = $schedule;
-			$data = $db->upsert(array('id' => $scheduleId, 'col' => $groupcode, 'type' => 'schedule', 'obj' => $obj ));
+			$data = $db->upsert(array('id' => $scheduleId, 'col' => $groupcode, 'type' => 'schedule', 'obj' => $obj ));*/
+		$shift = getShiftFromSchedule($groupcode, $shiftId, $scheduleId);
+		if($shift != null){
+			foreach($shift['users'] as $key=>$user){
+				if(strtolower($user['user_name']) == strtolower($username)){
+					unset($shift['users'][$key]);
+					break;
+				}
+			}
+			
+			array_filter($shift['users']);
+			if(empty($shift['users'])){
+				$shift['users'][] = array('user_name' => 'Open', 'first_name' => "", 'last_name' => "Open", 'id' =>	"NOPE");	
+			}
+			//$obj = $schedule;
+			$args = array('id' => $db->_id($shift['_id']), 'col' => $groupcode, 'type' => 'tempShift', 'obj' => array('users' => $shift['users']) );
+			$data = $db->upsert($args);
+			
 				$message = "success";	
 			}else{
 				$message =  "noRecord";	

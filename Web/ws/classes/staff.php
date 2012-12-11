@@ -31,8 +31,6 @@ class Staff {
     }
 
     public function getSchedule() {
-        $arg = array('col' => $this->groupcode, 'type' => 'tempShift', 'where' => array());
-        $results = $this->db->delete($arg);
         $final = array();
         $this->prevShifts = array();
         $arg = array('col' => $this->groupcode, 'type' => 'schedule', 'id' => $this->scheduleId);
@@ -174,7 +172,11 @@ class Staff {
                     }
                 }
             }
-            $arr = array_merge(array('min_hours' => $min * 60, 'max_hours' => $max * 60, 'current' => 0, 'available' => ($this->openShifts - $timeCount), 'diff' => 0, 'hours' => 0, 'bad' => array(), 'night_hours' => (((int) $nightReq) * 60), 'tokens' => $tokens, 'timeoffs' => $timeoffs, 'nightcount' => $nightcount, 'weekendcount' => $weekendcount), $result);
+            $requestedShifts = getRequestedShiftsByUserId($this->groupcode, $userId, $this->month, $this->year);
+            if($requestedShifts == null){
+                $requestedShifts = $min/12;
+            }
+            $arr = array_merge(array('min_hours' => $min * 60, 'requested_shifts' => $requestedShifts, 'max_hours' => $max * 60, 'current' => 0, 'available' => ($this->openShifts - $timeCount), 'diff' => 0, 'hours' => 0, 'bad' => array(), 'night_hours' => (((int) $nightReq) * 60), 'tokens' => $tokens, 'timeoffs' => $timeoffs, 'nightcount' => $nightcount, 'weekendcount' => $weekendcount), $result);
             $userList[] = $arr;
         }
         $this->users = $userList;
@@ -524,8 +526,8 @@ class Staff {
             $end = new MongoDate(strtotime($shift['endreal'] . ' +' . $hours . ' hours'));
             $where = array('users.id' => array('$in' => array($this->db->_id($user))), '$nor' => array('start' => array('$gt' => $start, '$lt' => $end), 'endreal' => array('$lt' => $start, '$gt' => $end)));
             if ($user['preferences']['circadian'] == '1') {
-                $start = new MongoId(strtotime($shift['start'] . ' - 24 hours'));
-                $where['$nor'][] = array('start' => array('$gte' => $startcir));
+                $start = new MongoDate(strtotime($shift['start'] . ' - 24 hours'));
+                $where['$nor'][] = array('start' => array('$gte' => $start));
             }
 
             $arg = array('col' => $this->groupcode, 'type' => 'tempShift', 'where' => $where);
@@ -1380,6 +1382,7 @@ class Staff {
         if ($results != null) {
             foreach ($results as $shift) {
                 $group = $shift['groups'][0];
+                $this->sortUsers('hours', 'asc');
                 foreach ($this->users as $key => $user) {
                     if ($group == $user['group']) {
 
@@ -1445,9 +1448,9 @@ class Staff {
     public function staffSchedule() {
 
         $this->sortUsers('both', 'desc');
-       // $this->mustWorks();
+        $this->mustWorks();
 
-       // $this->placeUsersInNights();
+        $this->placeUsersInNights();
         if (getConfig($this->groupcode, 'weekendShifts') == 'true') {
             $this->placeUsersInWeekends();
         }
@@ -1456,6 +1459,7 @@ class Staff {
         while ($this->finish == 0) {
             $this->finish = $this->replaceShifts();
         }
+        $this->placeUsersInRemainingShifts();
        // $this->fillShifts();
     }
 
@@ -1484,7 +1488,7 @@ class Staff {
         }
 
 
-        $obj = array('schedule' => $this->schedule, 'active' => 1);
+        $obj = array('schedule' => $this->schedule, 'active' => 1, 'published' => 0);
         $arg = array('col' => $this->groupcode, 'type' => 'schedule', 'obj' => $obj, 'id' => $this->scheduleId);
         $results = $this->db->upsert($arg);
         return $this->db->_id($results);

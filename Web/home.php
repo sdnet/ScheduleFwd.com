@@ -1,8 +1,9 @@
 <? require("php_includes/isLoggedIn.php"); ?>
 <? require("php_includes/protectedPage.php"); ?>
-<html>
+<!DOCTYPE html>
 	<head>
 		<title>Schedule Forward :: Medical scheduling software made easy</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <style>
 			.highlightLink {
 				font-weight: bold;

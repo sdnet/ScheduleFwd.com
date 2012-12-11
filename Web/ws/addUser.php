@@ -18,6 +18,8 @@ $max = $_POST['max'];
 $location = $_POST['location'];
 $priority = $_POST['priority'];
 $scheduleProvider = $_POST['scheduleProvider'];
+$shifts = $_POST['shifts'];
+$notShifts = $_POST['notShifts'];
 $hourCheck = true;
 // check session
 if (VerifySession($sessionId, $groupcode, $_SESSION['_id'], 'Admin') == true) {
@@ -50,13 +52,8 @@ if (VerifySession($sessionId, $groupcode, $_SESSION['_id'], 'Admin') == true) {
                                 '3' => 'Thursday',
                                 '4' => 'Friday',
                             ),
-                            'shifts' =>
-                            array(
-                                '0' => '5049860f69e95eb75b8c65b3',
-                                '1' => '5049864569e95eb75b8c65b5',
-                                '2' => '5049865b69e95eb75b8c65b6',
-                                '3' => '5049862469e95eb75b8c65b4',
-                            ),
+                                       'shifts' => $shifts,
+										'not_shifts' => $notShifts,
                             'block_days' => '1',
                             'block_weekend' => '1',
                             'max_days' => '5',

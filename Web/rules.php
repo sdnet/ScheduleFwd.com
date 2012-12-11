@@ -26,7 +26,7 @@
 			function loadConfigs() {
 				$.ajaxSetup({async:false});
 				var configObj = "";
-				$.post("/ws/getConfig", {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>"}, function (data) {
+				$.post("ws/getConfig", {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>"}, function (data) {
 						if (data.data != null) {
 							configObj = data.data[0];
 							if (configObj.dayOfWeekStart == "Sunday") {
@@ -60,6 +60,7 @@
 								$('#autoPublish2').attr("checked","true");
 							}
 							$('#timeoffDeadline').val(configObj.timeoffDeadline);
+							$('#sortBy').val(configObj.sortBy);
 							$('#scheduleGenerate').val(configObj.scheduleGenerate);
 							if (configObj.circadian == "true") {
 								$('#circadian1').attr("checked","true");
@@ -91,6 +92,16 @@
 							} else {
 								$('#tradeApproval2').attr("checked","true");
 							}
+							if (configObj.displayTimes == "true") {
+								$('#displayTimes1').attr("checked","true");
+							} else {
+								$('#displayTimes2').attr("checked","true");
+							}
+							if (configObj.shiftsOrHours == "Shifts") {
+								$('#shiftsOrHours1').attr("checked","true");
+							} else {
+								$('#shiftsOrHours2').attr("checked","true");
+							}
 						}
 					}	
 				);
@@ -106,6 +117,7 @@
 				var emailOptIn = ($('#emailOptIn1').attr('checked') == "checked" ? "true" : "false");
 				var autoPublish = ($('#autoPublish1').attr('checked') == "checked" ? "true" : "false");
 				var timeoffDeadline = $('#timeoffDeadline').val();
+				var sortBy = $('#sortBy').val();
 				var scheduleGenerate = $('#scheduleGenerate').val();
 				var circadian = ($('#circadian1').attr('checked') == "checked" ? "true" : "false");
 				var overrideCircadian = ($('#overrideCircadian1').attr('checked') == "checked" ? "true" : "false");
@@ -117,6 +129,8 @@
 				var attendingsLowerLevel = ($('#attendingsLowerLevel1').attr('checked') == "checked" ? "true" : "false");
 				var weekendShifts = ($('#weekendShifts1').attr('checked') == "checked" ? "true" : "false");
 				var tradeApproval = ($('#tradeApproval1').attr('checked') == "checked" ? "true" : "false");
+				var shiftsOrHours = ($('#shiftsOrHours1').attr('checked') == "checked" ? "Shifts" : "Hours");
+				var displayTimes = ($('#displayTimes1').attr('checked') == "checked" ? "true" : "false");
 				
 				var jsonConfigs = {
 					"sessionId":"<?=$sessionId;?>",
@@ -129,6 +143,7 @@
 					"emailOptIn": "" + emailOptIn + "",
 					"autoPublish": "" + autoPublish + "",
 					"timeoffDeadline": "" + timeoffDeadline + "",
+					"sortBy": "" + sortBy + "",
 					"scheduleGenerate": "" + scheduleGenerate + "",
 					"circadian": "" + circadian + "",
 					"overrideCircadian": "" + overrideCircadian + "",
@@ -140,10 +155,12 @@
 					"attendingsLowerLevel": "" + attendingsLowerLevel + "",
 					"weekendShifts": "" + weekendShifts + "",
 					"tradeApproval": "" + tradeApproval + "",
+					"shiftsOrHours": "" + shiftsOrHours + "",
+					"displayTimes": "" + displayTimes + "",
 					"grpcode": "<?=$_SESSION['grpcode'];?>"
 				};
 				
-				$.post("/ws/editConfig", jsonConfigs,
+				$.post("ws/editConfig", jsonConfigs,
                     function (data) {
 						if (data.message == "success") {
 							$('.newUserSuccess').html('Configurations successfully saved');
@@ -191,6 +208,7 @@
                                     
                                     <div id="expCol1">
 										<table id="tblRules">
+                                        	<!--
                                             <tr onMouseOver="this.bgColor='#F3F5D6'" onMouseOut="this.bgColor='#FFFFFF'">
                                                 <td style="width: 50%; padding: 5px;">
                                                 	<h3>What day do weeks begin on?</h3> 
@@ -199,6 +217,7 @@
                                                 	<input type="radio" id="dayOfWeekStart1" name="dayOfWeekStart" value="Sunday"> <label for="dayOfWeekStart1">Sunday</label> <input type="radio" id="dayOfWeekStart2" name="dayOfWeekStart" value="Monday"> <label for="dayOfWeekStart2">Monday</label>
                                                 </td>
                                             </tr>
+                                            -->
 											<tr onMouseOver="this.bgColor='#F3F5D6'" onMouseOut="this.bgColor='#FFFFFF'">
                                                 <td style="width: 50%; padding: 5px;">
                                                 	<h3>Select a timezone for your location</h3> 
@@ -238,6 +257,22 @@
                                                       <option value="11.0">(GMT +11:00) Magadan, Solomon Islands, New Caledonia</option>
                                                       <option value="12.0">(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka</option>
                                                 </select> 
+                                                </td>
+                                            </tr>
+											<tr onMouseOver="this.bgColor='#F3F5D6'" onMouseOut="this.bgColor='#FFFFFF'">
+                                                <td style="width: 50%; padding: 5px;">
+                                                	<h3>Display times on Admin's Schedule?</h3> 
+                                                </td>
+                                                 <td style="width: 50%; text-align: right; padding: 5px;">
+                                                	<input type="radio" id="displayTimes1" name="displayTimes" value="Yes"> <label for="displayTimes1">Yes</label> <input type="radio" id="displayTimes2" name="displayTimes" value="No"> <label for="displayTimes2">No</label>
+                                                </td>
+                                            </tr>
+											<tr onMouseOver="this.bgColor='#F3F5D6'" onMouseOut="this.bgColor='#FFFFFF'">
+                                                <td style="width: 50%; padding: 5px;">
+                                                	<h3>Show statistics on schedules by shifts or hours?</h3> 
+                                                </td>
+                                                 <td style="width: 50%; text-align: right; padding: 5px;">
+                                                	<input type="radio" id="shiftsOrHours1" name="shiftsOrHours" value="Shifts"> <label for="shiftsOrHours1">Shifts</label> <input type="radio" id="shiftsOrHours2" name="shiftsOrHours" value="Hours"> <label for="shiftsOrHours2">Hours</label>
                                                 </td>
                                             </tr>
 											<tr onMouseOver="this.bgColor='#F3F5D6'" onMouseOut="this.bgColor='#FFFFFF'">
@@ -350,7 +385,7 @@
                                             </tr>
                                             <tr onMouseOver="this.bgColor='#F3F5D6'" onMouseOut="this.bgColor='#FFFFFF'">
                                                 <td style="width: 50%; padding: 5px;">
-                                                	<h3>Maximum <strong>night</strong> shifts per provider, per month</h3> 
+                                                	<h3>Minimum <strong>night</strong> hours per provider, per month</h3> 
                                                 </td>
                                                 <td style="width: 50%; text-align: right; padding: 5px;">
                                                 	<input type="type" id="maxNightsPerMonth" name="maxNightsPerMonth" maxlength="2" value="" style="width: 25px;">
@@ -386,6 +421,17 @@
                                                 </td>
                                                 <td style="width: 50%; text-align: right; padding: 5px;">
                                                 	<input type="radio" id="tradeApproval1" name="tradeApproval" value="Yes"> <label for="tradeApproval1">Yes</label> <input type="radio" id="tradeApproval2" name="tradeApproval" value="No"> <label for="tradeApproval2">No</label>
+                                                </td>
+                                            </tr>
+                                            <tr onMouseOver="this.bgColor='#F3F5D6'" onMouseOut="this.bgColor='#FFFFFF'">
+                                                <td style="width: 50%; padding: 5px;">
+                                                	<h3>Sort shifts on schedule page by</h3> 
+                                                </td>
+                                                <td style="width: 50%; text-align: right; padding: 5px;">
+                                                	<select name="sortBy" id="sortBy" style="z-index: 1000;">
+															<option value="time">Time only</option>
+                                                            <option value="siteTime">Site then Time</option>
+                                                    </select>
                                                 </td>
                                             </tr>
                                     	</table>

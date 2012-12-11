@@ -144,6 +144,7 @@
 			function submitMessage() {
 				// var to = $('#txtTo').val();
 				var to = $('.as-values').val();
+				to = to.substring(0,to.length - 1);
 				var from = "<?=$_SESSION['userName'];?>";
 				var subject = $('#txtSubject').val();
 				var message = $('#txtMessage').val();
@@ -151,6 +152,7 @@
 				if (!(to) || !(subject) || !(message)) {
 					$('#profileError').html('Messages need a "to", "subject" and a "message"; please try again...');
 				} else {
+					alert(to);
 					$.post('ws/addMessage', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","to":to,"from":from,"subject":subject,"body":message} , function(data) {
 						if (data.message == "success") {
 							$('#profileSuccess').html('Message successfully sent!');

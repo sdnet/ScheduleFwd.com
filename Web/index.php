@@ -10,6 +10,7 @@
 		<title>Schedule Forward :: Medical scheduling software made easy</title>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="description" content="" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="keywords" content="" />
 		<!--5grid--><script src="css/5grid/viewport.js"></script><!--[if lt IE 9]><script src="css/5grid/ie.js"></script><![endif]--><link rel="stylesheet" href="css/5grid/responsive.css" /><!--/5grid-->
 		<link rel="stylesheet" href="css/style.css" />
@@ -52,7 +53,7 @@
 							if ((getParameterByName("referral") != "") && (getParameterByName("referral") != undefined)) {
 								window.location.href = getParameterByName("referral");
 							} else {
-                            	window.location.href = "/home";
+                            	window.location.href = "home";
 							}
                         } else if (data.message == "authFailure") {
                             displayAlert('alert', 'Email/Password combination was invalid.');

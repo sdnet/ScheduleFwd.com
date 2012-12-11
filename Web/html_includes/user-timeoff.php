@@ -16,39 +16,85 @@
 				return decodeURIComponent(results[1].replace(/\+/g, " "));
 			}
 			
-			function selectShift(id,inDate) {
+			function selectShift(id,inDate,priority) {
 				isSelected = document.getElementById(id).style.textDecoration;
+				isColor = document.getElementById(id).style.color;
 				var passedInUser = getParameterByName("user");
-				
-				if (isSelected == "line-through") {
-					document.getElementById(id).style.textDecoration = "none";
-					document.getElementById(id).style.fontWeight = "";
-					$("#priority_"+id).html("");
-					id = id.split("_");
-					id = id[1];
-					if (passedInUser != "") {
-						$.post('ws/deleteTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","id":passedInUser,"shiftId":id,"date":inDate} , function(data) {
-							timeoffObj = data.data;
-						}); 
+				$("#priority_"+id).html("");
+
+				if (priority == undefined) {
+					if (((isSelected != "line-through") && (isColor == "rgb(71, 79, 81)")) || ((isSelected == "") && (isColor == ""))) {
+						document.getElementById(id).style.textDecoration = "line-through";
+						document.getElementById(id).style.fontWeight = "bold";
+						document.getElementById(id).style.color = "#474f51";
+						$("#priority_"+id).html("<img src=\"/images/action_delete.png\" />");
+						id = id.split("_");
+						id = id[1];
+						if (passedInUser != "") {
+							$.post('ws/addTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","id":passedInUser,"shiftId":id,"date":inDate} , function(data) {
+								timeoffObj = data.data;
+							});
+						} else {
+							$.post('ws/addTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","shiftId":id,"date":inDate} , function(data) {
+								timeoffObj = data.data;
+							});
+						}
+					} else if (isSelected == "line-through") {
+						document.getElementById(id).style.textDecoration = "";
+						document.getElementById(id).style.color = "green";
+						document.getElementById(id).style.fontWeight = "bold";
+						$("#priority_"+id).html("");
+						id = id.split("_");
+						id = id[1];
+						if (passedInUser != "") {
+							$.post('ws/addTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","mustwork":true,"id":passedInUser,"shiftId":id,"date":inDate} , function(data) {
+								timeoffObj = data.data;
+							}); 
+						} else {
+							$.post('ws/addTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","mustwork":true,"shiftId":id,"date":inDate} , function(data) {
+								timeoffObj = data.data;
+							}); 
+						}
+					} else if (isColor == "green") {
+						document.getElementById(id).style.textDecoration = "none";
+						document.getElementById(id).style.color = "#474f51";
+						document.getElementById(id).style.fontWeight = "normal";
+						$("#priority_"+id).html("");
+						id = id.split("_");
+						id = id[1];
+						if (passedInUser != "") {
+							$.post('ws/deleteTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","id":passedInUser,"shiftId":id,"date":inDate} , function(data) {
+								timeoffObj = data.data;
+							}); 
+						} else {
+							$.post('ws/deleteTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","shiftId":id,"date":inDate} , function(data) {
+								timeoffObj = data.data;
+							}); 
+						}
 					} else {
-						$.post('ws/deleteTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","shiftId":id,"date":inDate} , function(data) {
-							timeoffObj = data.data;
-						}); 
+						document.getElementById(id).style.textDecoration = "line-through";
+						document.getElementById(id).style.fontWeight = "bold";
+						document.getElementById(id).style.color = "#474f51";
+						id = id.split("_");
+						id = id[1];
+						if (passedInUser != "") {
+							$.post('ws/addTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","id":passedInUser,"shiftId":id,"date":inDate} , function(data) {
+								timeoffObj = data.data;
+							});
+						} else {
+							$.post('ws/addTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","shiftId":id,"date":inDate} , function(data) {
+								timeoffObj = data.data;
+							});
+						}
 					}
 				} else {
-					document.getElementById(id).style.textDecoration = "line-through";
-					document.getElementById(id).style.fontWeight = "bold";
-					$("#priority_"+id).html("<img src=\"/images/action_delete.png\" />");
-					id = id.split("_");
-					id = id[1];
-					if (passedInUser != "") {
-						$.post('ws/addTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","id":passedInUser,"shiftId":id,"date":inDate} , function(data) {
-							timeoffObj = data.data;
-						});
+					// This is in response to a change in priority (must have vs. nice to have)
+					if (isColor == "rgb(71, 79, 81)") {
+						document.getElementById(id).style.color = "red";
+						$("#priority_"+id).html("<img src=\"/images/action_check.png\" />");
 					} else {
-						$.post('ws/addTimeOff', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","shiftId":id,"date":inDate} , function(data) {
-							timeoffObj = data.data;
-						});
+						document.getElementById(id).style.color = "#474f51";
+						$("#priority_"+id).html("<img src=\"/images/action_delete.png\" />");
 					}
 				}
 			}
@@ -98,6 +144,7 @@
 				var content = $("#priority_"+id).html();
 				var inDate = $.trim(inDate);
 				var priorityId = id;
+				var compId = id;
 				id = id.split("_");
 				id = id[1]; 
 				if (content.indexOf("check") > -1) {
@@ -111,6 +158,8 @@
 						timeoffObj = data.data;
 					});
 				}
+				
+				selectShift(compId,inDate,true);
 			}
 			
 			function loadCalendar() {
@@ -205,9 +254,12 @@
 				
 				if (timeoffObj != null) {
 					for (var i = 0; i < timeoffObj.length; i++) {
+						var mustwork = "";
+						
 						var startDate = timeoffObj[i].date;
 						var status = timeoffObj[i].status;
 						var priority = timeoffObj[i].priority;
+						mustwork = timeoffObj[i].mustwork;
 						var isRequested = timeoffObj[i].timeoff;
 						var textdecoration = "";
 						var fontweight = "";
@@ -223,17 +275,30 @@
 						}
 
 						day = days[2];
+						var textcolor = "";
 						if (isRequested == 1) { 
 							textdecoration = "line-through"; fontweight = "bold"; 
 							
 							if (priority == "1") {
 								priority = "<img src=\"/images/action_check.png\" />";	
+								textcolor = "red"; 
 							} else {
 								priority = "<img src=\"/images/action_delete.png\" />";
+								textcolor = "#474f51";
+							}
+							
+							if (mustwork == "true") {
+								textcolor = "green";	
 							}
 							
 						} else {
 							priority = "";	
+						}
+
+						if (mustwork == "true") {
+							priority = "";	
+							textdecoration = "none";
+							fontweight = "bold";
 						}
 						<?php
 							// Make another date instance to determine whether or not the viewable month is changable
@@ -243,7 +308,7 @@
 							$year2 = date("Y",$advanceDate2);					
 						?>
 						<?php if ((((!isset($_GET['month']) && !isset($_GET['year'])) || ($_GET['month'] == $month2 && $_GET['year'] == $year2))) || $_SESSION['role'] == 'Admin') { ?>
-							var content = '<span id=\'' + timeoffObj[i].id + '_' + timeoffObj[i].shiftId + '\' shiftDate=\"' + startDate + '\" style=\"text-decoration: ' + textdecoration + '; font-weight: ' + fontweight + '\" class=\"shifts\" onClick=\"selectShift(\'' + timeoffObj[i].id + '_' + timeoffObj[i].shiftId + '\',\'' + startDate + '\')\">' + timeoffObj[i].shiftName + '</span> <span onclick="togglePriority(\'' + timeoffObj[i].id + '_' + timeoffObj[i].shiftId + '\',\'' + startDate + '\')" id="priority_' + timeoffObj[i].id + '_' + timeoffObj[i].shiftId + '">' + priority + '</span> <br />';
+							var content = '<span id=\'' + timeoffObj[i].id + '_' + timeoffObj[i].shiftId + '\' shiftDate=\"' + startDate + '\" style=\"text-decoration: ' + textdecoration + '; font-weight: ' + fontweight + '\; color: ' + textcolor + '\" class=\"shifts\" onClick=\"selectShift(\'' + timeoffObj[i].id + '_' + timeoffObj[i].shiftId + '\',\'' + startDate + '\')\">' + timeoffObj[i].shiftName + '</span> <span onclick="togglePriority(\'' + timeoffObj[i].id + '_' + timeoffObj[i].shiftId + '\',\'' + startDate + '\')" id="priority_' + timeoffObj[i].id + '_' + timeoffObj[i].shiftId + '">' + priority + '</span> <br />';
 						<? } else { ?>
 						var content = '<span class=\"shifts\" id=\'' + timeoffObj[i].id + '_' + timeoffObj[i].shiftId + '\' shiftDate=\"' + startDate + '\" style=\"text-decoration: ' + textdecoration + '; font-weight: ' + fontweight + '; background-color: ' + color + '">' + timeoffObj[i].shiftName + '</span> <span id="priority_' + timeoffObj[i].id + '_' + timeoffObj[i].shiftId + '">' + priority + '</span> <br />';
 						<? } ?>
@@ -276,7 +341,7 @@
                                <img src="/images/action_check.png" /> = Must have off
                            </div>
                            
-                           <h2 id="dashboard">Time Off Requests</h2>
+                           <h2 id="dashboard">Schedule Requests</h2>
                            <?php 
                                if($_SESSION['role'] == 'Admin') {      
                            ?>
@@ -291,8 +356,16 @@
 							   }
 						   ?>
                                 	
-                                    <br />
+                                    <br /><br />
+                                    <div style="background-color: #F2F2F2; padding: 5px; border-top-left-radius: 6px; border-top-right-radius: 6px;">
                                 	<span id="spnPrevMonth"></span>
+                                    &nbsp; &nbsp; &nbsp; 
+                                        <span style="font-weight: bold;">
+                                            Instructions: &nbsp; 
+                                        </span>
+                                        
+                                        Click <span style="font-weight: bold;">once</span> to request shift off.  Click <span style="font-weight: bold;">twice</span> to mark as 'must work'.  Click<span style="font-weight: bold;"> third time</span> to clear request.
+                                    </div>
                                 
 									<?php 
                                      //This gets today's date 
@@ -305,24 +378,28 @@
                                      // $month =  date('n',strtotime("+$offset months", $today));
                                      $days = cal_days_in_month(CAL_GREGORIAN, $month, $year);
                                     
-                                     //Here we generate the first day of the month 
-                                     $first_day = mktime(0,0,0,$month, 1, $year) ; 
-
-                                     //This gets us the month name 
-                                     $title = date('F', $first_day); 
+                                    // Here we generate the first day of the month (starting on Monday, so we subtract a day)
+                                    $first_day = mktime(0,0,0,$month, 1, $year)-1;
+									
+									// When on the 1st, the month will read the 31st of the previous month due to our offset
+									// subtraction above; keep a non-offset date available for month display
+									$first_day_without_offset = mktime(0,0,0,$month, 1, $year);
+                                    
+                                    // This gets us the month name
+                                    $title = date('F', $first_day_without_offset);
                                      
                                      //Here we find out what day of the week the first day of the month falls on 
                                      $day_of_week = date('D', $first_day) ; 
 
-                                     //Once we know what day of the week it falls on, we know how many blank days occure before it. 
-                                     switch($day_of_week){ 
-										 case "Sun": $blank = 0; break; 
-										 case "Mon": $blank = 1; break; 
-										 case "Tue": $blank = 2; break; 
-										 case "Wed": $blank = 3; break; 
-										 case "Thu": $blank = 4; break; 
-										 case "Fri": $blank = 5; break; 
-										 case "Sat": $blank = 6; break; 
+                                    // Once we know what day of the week it falls on, we know how many blank days occure before it. If the first day of the week is a Sunday then it would be zero
+                                     switch($day_of_week) { 
+                                         case "Mon": $blank = 1; break; 
+                                         case "Tue": $blank = 2; break; 
+                                         case "Wed": $blank = 3; break; 
+                                         case "Thu": $blank = 4; break; 
+                                         case "Fri": $blank = 5; break; 	
+                                         case "Sat": $blank = 6; break; 
+                                         case "Sun": $blank = 7; break; 
                                      }
 
                                      //We then determine how many days are in the current month
@@ -331,9 +408,9 @@
                                       //Here we start building the table heads 
                                      echo "<table id=\"tblShiftTrade\">";
                                      echo "<tr><th colspan=7> $title $year </th></tr>";
-                                     echo "<tr id=\"tblShiftTradeDays\"><td width=42>S</td><td width=42>M</td><td 
-                                    		width=42>T</td><td width=42>W</td><td width=42>T</td><td 
-                                    		width=42>F</td><td width=42>S</td></tr>";
+                                     echo "<tr id=\"tblShiftTradeDays\"><td width=42>Mon</td><td width=42>Tues</td><td 
+                                    		width=42>Wed</td><td width=42>Thurs</td><td width=42>Fri</td><td 
+                                    		width=42>Sat</td><td width=42>Sun</td></tr>";
 
                                      //This counts the days in the week, up to 
                                      $day_count = 1;

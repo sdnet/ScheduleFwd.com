@@ -214,10 +214,11 @@ function startsWith($haystack, $needle, $case=true) {
 
 function getUserId($username, $groupcode) {
     $db = new MONGORILLA_DB;
-    $args = array('col' => $groupcode, 'type' => 'user', 'where' => array('user_name' => $username), 'limit' => 1);
-    $uresult = $db->find($args);
-    if ($uresult != null) {
-        return $db->_id($uresult[0]['_id']);
+    $username = new MongoRegex("/^" . $username . "$/i");
+    $args = array('col' => $groupcode, 'type' => 'user', 'where' => array('user_name' => $username, 'active' => 1));
+    $result = $db->find($args);
+    if ($result != null) {
+        return $db->_id($result[0]['_id']);
     } else {
         return false;
     }
@@ -229,6 +230,17 @@ function getUserById($groupcode, $userId) {
     $uresult = $db->find($args);
     if ($uresult != null) {
         return $uresult[0];
+    } else {
+        return false;
+    }
+}
+
+function getPreferredShiftsByUser($groupcode, $userId) {
+    $db = new MONGORILLA_DB;
+    $args = array('col' => $groupcode, 'type' => 'user', 'id' => $userId, 'limit' => 1);
+    $uresult = $db->find($args);
+    if ($uresult != null) {
+        return $uresult[0]['preferences']['shifts'];
     } else {
         return false;
     }
@@ -330,14 +342,40 @@ function getForecastSchedule($groupcode, $limit = 2, $next = 'next') {
 
 function getShiftFromSchedule($groupcode, $shiftId, $scheduleId) {
     $db = new MONGORILLA_DB;
-    $args = array('col' => $groupcode, 'type' => 'schedule', 'id' => $scheduleId);
+    /* $args = array('col' => $groupcode, 'type' => 'schedule', 'id' => $scheduleId);
+      $result = $db->find($args);
+      foreach ($result[0]['schedule'] as $shift) {
+      if ($shift['id'] == $shiftId) {
+      return $shift;
+      break;
+      }
+      } */
+
+    $args = array('col' => $groupcode, 'type' => 'tempShift', 'where' => array('id' => (int) $shiftId, 'scheduleId' => $scheduleId), 'limit' => 1);
     $result = $db->find($args);
-    foreach ($result[0]['schedule'] as $shift) {
-        if ($shift['id'] == $shiftId) {
-            return $shift;
-            break;
+    return convertTimes($result[0]);
+}
+
+function convertTimes($shift) {
+    $shift['start'] = date('Y-m-d H:i:s', $shift['start']->sec);
+    $shift['endreal'] = date('Y-m-d H:i:s', $shift['endreal']->sec);
+
+    return $shift;
+}
+
+function getMonthYearFromScheduleId($groupcode, $scheduleId) {
+    $db = new MONGORILLA_DB;
+    $monthAndYear = array();
+    $args = array('col' => $groupcode, 'type' => 'schedule', 'id' => $scheduleId, $where = array());
+    $results = $db->find($args);
+    if ($results) {
+        foreach ($results as $result) {
+            $monthAndYear['month'] = $result['month'];
+            $monthAndYear['year'] = $result['year'];
         }
     }
+
+    return $monthAndYear;
 }
 
 function getShiftTraded($groupcode, $shiftId, $scheduleId) {
@@ -428,7 +466,7 @@ function getTimeOffByUserId($groupcode, $userId, $month = null, $year = null) {
     if ($month == null) {
         $month = '' . date('m') . '';
     }
-	$where = array('year' => "$year", 'month' => "$month", 'userId' => $userId, 'mustwork' => array('$ne' =>true));
+    $where = array('year' => "$year", 'month' => "$month", 'userId' => $userId, 'mustwork' => array('$ne' => true));
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
     $result = $db->find($args);
     if ($result != null) {
@@ -438,10 +476,28 @@ function getTimeOffByUserId($groupcode, $userId, $month = null, $year = null) {
     }
 }
 
+function getRequestedShiftsByUserId($groupcode, $userId, $month = null, $year = null) {
+    $db = new MONGORILLA_DB;
+    if ($year == null) {
+        $year = '' . date('Y') . '';
+    }
+    if ($month == null) {
+        $month = '' . date('m') . '';
+    }
+    $where = array('year' => "$year", 'month' => "$month", 'userId' => $userId);
+    $args = array('col' => $groupcode, 'type' => 'expectedShifts', 'where' => $where);
+    $result = $db->find($args);
+    if ($result != null) {
+        return $result[0]['shifts'];
+    } else {
+        return false;
+    }
+}
+
 function isTimeoffRequestedByUserIdAndShiftId($groupcode, $userId, $date, $month, $year, $shiftId) {
     $ret = false;
     $db = new MONGORILLA_DB;
-	$where = array('year' => $year, 'month' => $month, 'time_off' => array('$in' => array($date => $shiftId)), 'userId' => $userId, 'active' => 'Approved','mustwork' => array('$ne' =>true));
+    $where = array('year' => $year, 'month' => $month, 'time_off' => array('$in' => array($date => $shiftId)), 'userId' => $userId, 'active' => 'Approved', 'mustwork' => array('$ne' => true));
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
     $result = $db->find($args);
     if ($result != null) {
@@ -483,24 +539,14 @@ function getCurrentSchedule($groupcode) {
 function getHoursByUserId($groupcode, $userId, $scheduleId) {
     $db = new MONGORILLA_DB;
     $hours = 0;
-    $results = getScheduleById($groupcode, $scheduleId);
-    $shifts = $results['schedule'];
+    // $results = getScheduleById($groupcode, $scheduleId);
+    $where = array('users.id' => array('$in' => array($userId)), 'scheduleId' => $scheduleId);
+    $args = array('col' => $groupcode, 'type' => 'tempShift', 'where' => $where);
+    $shifts = $db->find($args);
     foreach ($shifts as $shift) {
-        foreach ($shift['users'] as $user) {
-            if ($user['id'] == $userId) {
-
-                $t1 = new DateTime($shift['start']);
-                $t2 = new DateTime($shift['endreal']);
-                $t3 = date_diff($t1, $t2);
-                $hours = $hours + $t3->h;
-               // $t1 = strtotime($shift['start']);
-               // $t2 = strtotime($shift['endreal']);
-               // $t3 = $t2 - $t1;
-               // $hours = floor($t3 / 60 / 60);
-            }
-        }
+        $hours = $hours + $shift['duration'] / 60;
     }
-    if ($results != null) {
+    if ($shifts != null) {
         return $hours;
     } else {
         return false;
@@ -674,14 +720,13 @@ function getTotalTimeOffByUserId($groupcode, $userId, $year = null) {
     }
 
     $timecount = 0;
-	$where = array('time_off' => array('$in' => array($year)), 'userId' => $userId,'status' => array('$ne' => 'Disapproved'),'mustwork' => array('$ne' =>true));
+    $where = array('time_off' => array('$in' => array($year)), 'userId' => $userId, 'status' => array('$ne' => 'Disapproved'), 'mustwork' => array('$ne' => true));
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
     $results = $db->find($args);
     foreach ($results as $result) {
         $timecount++;
     }
     return $timecount;
-    
 }
 
 function getMonthTimeOffByUserId($groupcode, $userId, $month = null, $year = null) {
@@ -694,72 +739,88 @@ function getMonthTimeOffByUserId($groupcode, $userId, $month = null, $year = nul
     }
 
     $timecount = 0;
-	$where = array('year' => $year, 'month' => $month, 'userId' => $userId, 'status' => array('$ne' => 'Disapproved'),'mustwork' => array('$ne' =>true));
+    $where = array('year' => $year, 'month' => $month, 'userId' => $userId, 'status' => array('$ne' => 'Disapproved'), 'mustwork' => array('$ne' => true));
     $args = array('col' => $groupcode, 'type' => 'timeoff', 'where' => $where);
     $results = $db->find($args);
     foreach ($results as $result) {
         $timecount++;
     }
     return $timecount;
-    
 }
 
-function getUserCanWork($groupcode, $userId, $starttime, $endtime, $shiftId = false, $scheduleId = false) {
+function getUserCanWork($groupcode, $user, $shift) {
     $db = new MONGORILLA_DB;
     $hours = getConfig($groupcode, 'minHoursBetweenShifts');
-    //$results = getUserSchedule($userId,$groupcode,2,'next');
-    //if($results != null){
-    //	$i = 0;
-    //	$future = false;
-    //	foreach($results as $result){
-    //		foreach($result['schedule'] as $sched){
-    //			foreach($sched['users'] as $k=>$v){
-    //				if($v['id'] == $userId){
-    //					if(strtotime($sched['start']) > strtotime('' . $endtime . ' +' . $hours . ' hours') && )
-    //						{
-    //						echo "" . date($sched['start']) . " > " . date('Y-m-d H:i:s', strtotime('' . $endtime . ' +' . $hours . ' hours')) . "";
-    //						$future = true;
-    //						break 3;
-    //					}
-    //				}
-    //			}
-    //		}
-    //	}
-    //}
-    $resultsi = getUserSchedule($userId, $groupcode, 2, 'previous', $starttime);
-    if ($resultsi != null) {
-        $i = 0;
-        $past = false;
-        $future = false;
-        foreach ($resultsi as $resulti) {
-            foreach ($resulti['schedule'] as $sched) {
-                if (($shiftId != null) && ($sched['id'] == $shiftId) && ($scheduleId == $db->_id($resulti['_id']))) {
-                    
-                } else {
-                    foreach ($sched['users'] as $k => $v) {
-                        if ($v['id'] == $userId) {
-                            if ((strtotime($sched['endreal']) > strtotime('' . $starttime . ' -' . $hours . ' hours')) && (strtotime($sched['endreal']) < strtotime('' . $endtime . ' +' . $hours . ' hours'))) {
-                                //print_r("past: " . date($sched['endreal']) . " > " . date('Y-m-d H:i:s', strtotime('' . $starttime . ' -' . $hours . ' hours')) . " || ");
-                                $past = true;
-                                break 3;
-                            }
-                            if ((strtotime($sched['start']) > strtotime('' . $starttime . ' -' . $hours . ' hours')) && (strtotime($sched['start']) < strtotime('' . $endtime . ' +' . $hours . ' hours'))) {
-                                //echo "future: " . date($sched['endreal']) . " > " . date('Y-m-d H:i:s', strtotime('' . $starttime . ' -' . $hours . ' hours')) . " || ";
-                                $future = true;
-                                break 3;
-                            }
-                        }
-                    }
-                }
-            }
+
+//    $resultsi = getUserSchedule($userId, $groupcode, 2, 'previous', $starttime);
+//    if ($resultsi != null) {
+//        $i = 0;
+//        $past = false;
+//        $future = false;
+//        foreach ($resultsi as $resulti) {
+//            foreach ($resulti['schedule'] as $sched) {
+//                if (($shiftId != null) && ($sched['id'] == $shiftId) && ($scheduleId == $db->_id($resulti['_id']))) {
+//                    
+//                } else {
+//                    foreach ($sched['users'] as $k => $v) {
+//                        if ($v['id'] == $userId) {
+//                            if ((strtotime($sched['endreal']) > strtotime('' . $starttime . ' -' . $hours . ' hours')) && (strtotime($sched['endreal']) < strtotime('' . $endtime . ' +' . $hours . ' hours'))) {
+//                                //print_r("past: " . date($sched['endreal']) . " > " . date('Y-m-d H:i:s', strtotime('' . $starttime . ' -' . $hours . ' hours')) . " || ");
+//                                $past = true;
+//                                break 3;
+//                            }
+//                            if ((strtotime($sched['start']) > strtotime('' . $starttime . ' -' . $hours . ' hours')) && (strtotime($sched['start']) < strtotime('' . $endtime . ' +' . $hours . ' hours'))) {
+//                                //echo "future: " . date($sched['endreal']) . " > " . date('Y-m-d H:i:s', strtotime('' . $starttime . ' -' . $hours . ' hours')) . " || ";
+//                                $future = true;
+//                                break 3;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+
+    $results = false;
+    //  $shift = getShiftFromSchedule($groupcode, $shiftId, $scheduleId);
+    $start = new MongoDate(strtotime($shift['start'] . ' -' . $hours . ' hours'));
+    $end = new MongoDate(strtotime($shift['endreal'] . ' +' . $hours . ' hours'));
+    //if ($user['preferences']['circadian'] == '1') {
+    //    $start = new MongoDate(strtotime($shift['start'] . ' - 24 hours'));
+   // }
+    $where = array('users.id' => array('$in' => array($db->_id($user['_id']))), '$nor' => array(
+            array('start' => array('$gt' => $start, '$lt' => $end)),
+            array('endreal' => array('$lt' => $start, '$gt' => $end))));
+    $arg = array('col' => $groupcode, 'type' => 'tempShift', 'where' => $where);
+    $results = $db->find($arg);
+    if ($results == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function getUsersCanWork($groupcode, $shift) {
+    $userList = array();
+    $db = new MONGORILLA_DB;
+    $hours = getConfig($groupcode, 'minHoursBetweenShifts');
+    //$shift = convertTimes($shift);
+    $start = new MongoDate(strtotime($shift['start'] . ' -' . $hours . ' hours'));
+    $end = new MongoDate(strtotime($shift['endreal'] . ' +' . $hours . ' hours'));
+    $where = array('$or' => array(
+            array('start' => array('$gt' => $start, '$lt' => $end)),
+            array('endreal' => array('$lt' => $start, '$gt' => $end))));
+    $arg = array('col' => $groupcode, 'type' => 'tempShift', 'where' => $where, 'keys' => array('users' => 1));
+    $results = $db->find($arg);
+
+    foreach ($results as $result) {
+        foreach ($result['users'] as $users) {
+            $userList[] = $users['user_name'];
         }
     }
-
-    if ($past == true || $future == true) {
-        return false;
-    } else {
-        return true;
-    }
+    array_unique($userList);
+    return $userList;
 }
 
 function getUserCanWorkSchedule($groupcode, $userId, $starttime, $endtime, $shiftId, $schedule) {
@@ -1402,6 +1463,24 @@ function getFirstAvailable($schedule) {
         }
     }
     return $retShift;
+}
+
+//create a new ideas
+function updateSchedule($groupcode, $scheduleId) {
+    $db = new MONGORILLA_DB;
+    $arg = array('col' => $groupcode, 'type' => 'tempShift', 'where' => array('scheduleId' => $scheduleId, 'day' => array('$ne' => '00')));
+    $results = $db->find($arg);
+    $schedule = array();
+    foreach ($results as $shift) {
+//$shift['users'][] = array('first_name' => $pickeduser['first_name'], 'last_name' => $pickeduser['last_name'], 'user_name' => $pickeduser['user_name'], 'id' => $this->db->_id($pickeduser['_id']));
+        $schedule[$shift['id']] = $shift;
+    }
+
+
+    $obj = array('schedule' => $schedule);
+    $arg = array('col' => $groupcode, 'type' => 'schedule', 'obj' => $obj, 'id' => $scheduleId);
+    $results = $db->upsert($arg);
+    return $db->_id($results);
 }
 
 ?>

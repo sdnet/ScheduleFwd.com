@@ -219,13 +219,12 @@
                                                     <hr />
                                                     <div style="background-color: #F2F2F2; border: 1px solid #E6E6E6; border-radius: 7px; padding: 5px; width: 95%">
                                                         <div style="line-height: 18px; margin-bottom: 6px;">After a night shift (ie: <span style="font-weight: bold;">ending at 7am Tuesday</span>), when is the 
-                                                        earliest that you would prefer to work next? </div>
+                                                        earliest that you would prefer to work the next Thursday? </div>
                                                         <select id="afterNightShift">
                                                             <option value="">-- Select shift preference below --</option>
-                                                            <option value="Wed7am">Wednesday, 7am</option>
-                                                            <option value="Wed12pm">Wednesday, 12pm</option>
-                                                            <option value="Wed7pm">Wednesday, 7pm</option>
                                                             <option value="Thurs7am">Thursday, 7am</option>
+                                                            <option value="Thurs12pm">Thursday, 12pm</option>
+                                                            <option value="Thurs7pm">Thursday, 7pm</option>
                                                         </select>
                                                     	</div>
                                                     <hr />

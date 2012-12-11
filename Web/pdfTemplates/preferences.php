@@ -1,6 +1,27 @@
 <?php
-$shiftList = getShiftList($sessionId, $_SESSION['grpcode'], $group);
-$htmlBody = "<html id=\"pageHTML\">
+
+if(isset($_GET['month']) && isset($_GET['year'])) {
+	$month = $_GET['month'];
+	$year = $_GET['year'];
+}
+else {
+	$date = date("Y-m-d");// current date
+	$advanceDate = strtotime(date("Y-m-d", strtotime($date)) . " +2 month");
+	$month = Date("m",$advanceDate);
+	$year = Date("Y",$advanceDate);
+}
+
+$print = $_GET['print'];
+
+$passedInUser = $_SESSION['_id'];
+$gpCode = $_SESSION['grpcode'];
+$sessionId = session_id();
+
+$group = $_GET['group'];
+
+$shiftList = getShiftList($sessionId, $gpCode, $group);
+$htmlBody = "";
+$htmlBody = $htmlBody."<html id=\"pageHTML\">
 	<head>
 		<title>Schedule Forward :: Medical scheduling software made easy</title>
         <link rel=\"stylesheet\" href=\"/css/pdf.css\" />
@@ -19,6 +40,7 @@ $htmlBody = "<html id=\"pageHTML\">
             
             <!-- Content -->
             <div id=\"content\">
+
             
     <form id=\"frmTimeOff\" action=\"/ws/createPDF.php\" method=\"post\">
     <input type=\"hidden\" id=\"contentId\" name=\"content\" value=\"\" />
@@ -95,18 +117,24 @@ $htmlBody = $htmlBody."<table style=\"width: 100%;\">
         </tr>
     </table></div></body></html>";
     
+    if($print == 1) {
+	    toPdf($htmlBody, $sessionId, $gpCode);
+    }
+    
+    
     echo($htmlBody);
     
     
         
     function getShiftList($sessId, $gpCode, $gp){
-	    $data_array =array('sessionId'=>$sessId,'grpcode'=>$gpCode,'group'=>$gp);
+	    $data_array =array('sessionId'=>$sessId,'grpcode'=>$gpCode,'group'=>$gp, 'id'=>$_SESSION['_id']);
 	    $data = http_build_query($data_array);
 	    
 	    $response = do_post_request('http://schedulefwd.com/ws/getShifts', $data);
 	    
 	    $response = json_decode($response, true);
 	    $dataArray = $response['data'];
+	    
 	    
 	    $returnString = "";
 	    
@@ -155,7 +183,7 @@ $htmlBody = $htmlBody."<table style=\"width: 100%;\">
 			$start = substr($start, 0, strlen($start) - 4) . ":" . substr($start, (strlen($start)-4), strlen($start));
 			$end = substr($end, 0, strlen($end) - 4) . ":" . substr($end, (strlen($end)-4), strlen($end));
 			
-		    $returnString = $returnString."<tr><td style=\"padding: 4px; border: 1px solid #666666;\"> &nbsp </td><td> &nbsp".$shift['name']." (".$start." - ".$end.")</td>";
+		    $returnString = $returnString."<tr><td style=\"padding: 4px; width:25px; border: 1px solid #666666;\"> &nbsp; </td><td> &nbsp;".$shift['name']." (".$start." - ".$end.")</td>";
 	    }
 	    
 	    return $returnString;
@@ -181,6 +209,18 @@ $htmlBody = $htmlBody."<table style=\"width: 100%;\">
         throw new Exception("Problem reading data from $url, $php_errormsg");
      }
      	return $response;
+     }
+     
+     function toPdf($stringContent, $sessId, $grpCode) {
+	     $data_array = array('id'=>$_SESSION['_id'],'sessionId'=>$sessId,'grpcode'=>$grpCode, 'content'=>$stringContent, 'type'=>'timeoff');
+	     $data = http_build_query($data_array);
+	     
+	     
+	     $response = do_post_request('http://schedulefwd.com/ws/createPDF', $data);
+	    
+	    header('Content-disposition: attachment; filename=schedule.pdf');
+	    header('Content-type: application/pdf');
+	    echo $response; 
      }
     
 ?>

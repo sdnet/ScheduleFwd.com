@@ -72,7 +72,7 @@
 				$('#group').val("");
 				$('#newUserError').html("");
 				$('#newUserSuccess').html("");
-                                $('#location').html("");
+                $('#location').html("");
 				
 				$.post("ws/getGroups", {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>"}, 
                     function (data) {
@@ -245,7 +245,7 @@
 				var frequency = userObj[i].days;
 				var group = userObj[i].groups[0];
 				var tmpDayHolder = "";
-                                var loc = userObj[i].location;
+                var loc = (userObj[i].location != null ? userObj[i].location : "No location");
 
 				if (jQuery.inArray("Monday", frequency)> -1) {
 					tmpDayHolder += '<span class="shiftDayWorking">Mon</span>';
@@ -289,8 +289,8 @@
 					tmpDayHolder += '<span class="shiftDayNotWorking">Sun</span>';
 				}	
 							
-				var edit = '<a href="#" class="" onclick="editShift(\'' + id + '\')"><img src="images/wrench.png" alt="Edit Shift" title="Edit Shift" /></a>';
-				var del = '<a href="#" class="" onclick="deleteShift(\'' + id + '\')"><img src="images/cancel.png" alt="Delete Shift" title="Delete Shift" /></a>';
+				var edit = '<a class="" onclick="editShift(\'' + id + '\')"><img src="images/wrench.png" alt="Edit Shift" title="Edit Shift" /></a>';
+				var del = '<a class="" onclick="deleteShift(\'' + id + '\')"><img src="images/cancel.png" alt="Delete Shift" title="Delete Shift" /></a>';
 
 				shiftArray[inc] = new Array(name,loc,times,tmpDayHolder,group,edit,del);
 				inc++;
@@ -508,7 +508,7 @@
 								<section>
 									
 									<div id="userMgmtLinks">
-										<img src="images/tag_blue_add.png" alt="Add New Shift" /> <a href="#" class="openNewEditShift">Add New Shift</a>
+										<img src="images/tag_blue_add.png" alt="Add New Shift" /> <a style="cursor: pointer;" class="openNewEditShift">Add New Shift</a>
 									</div>
 									
                                     <h2 id="dashboard">Shift Management</h2>				

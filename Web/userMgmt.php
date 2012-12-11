@@ -5,6 +5,26 @@
 		<title>Schedule Forward :: Medical scheduling software made easy</title>
 		<?php include("html_includes/adminMeta.php"); ?>
 
+<style>
+.multiselect {
+	text-align: left;
+	font-size: 0.7em;
+    width:25em;
+    height:20em;
+    border:solid 1px #c0c0c0;
+    overflow:auto;
+}
+ 
+.multiselect label {
+    display:block;
+}
+ 
+.multiselect-on {
+    color:#000000;
+    background-color:#E6F9F0;
+}
+</style>
+
         <script language="javascript" type="text/javascript">
             function expandRow(divId) {
                 $('#' + divId).css("padding","15px");
@@ -14,6 +34,15 @@
             function reduceRow(divId) {
                 $('#' + divId).hide('slow');
             }
+			
+			function getSites() {
+				$.ajaxSetup({async:false});
+				$.post('ws/getLocations', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>"} , function(data) {
+					if (data.message == "success") {
+
+					}
+				});	
+			}
 			
 			function deleteUser(id,type) {
 				var r = confirm("Are you sure that you want to delete this provider?")
@@ -66,8 +95,9 @@
 				var email = userObj[user].email;
 				var phone = userObj[user].phone;
 				var group = userObj[user].group;
+				var loc = userObj[user].location;
 				var role = (userObj[user].role != undefined ? userObj[user].role : 'User');
-				var edit = "<a title=\"Edit provider's Details\" href=\"#\" class=\"openEditUser\" onClick=\"processEditUserModal('" + username + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" /></a> <a title=\"Edit provider's Scheduling Preferences\" href=\"editUserPrefs?user=" + username + "\"><img src=\"images/wrench.png\" alt=\"Edit\" title=\"Edit Preferences\" /></a> <a title=\"Edit provider's Timeoff Requests\" href=\"editUserTimeoffs?user=" + id + "\"><img src=\"images/calendar_view_day.png\" alt=\"Edit\" title=\"Submit Timeoff Requests\" /></a>";
+				var edit = "<a style=\"cursor: pointer;\" title=\"Edit provider's Details\" class=\"openEditUser\" onClick=\"processEditUserModal('" + username + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" /></a> <a title=\"Edit provider's Scheduling Preferences\" href=\"editUserPrefs?user=" + username + "\"><img src=\"images/wrench.png\" alt=\"Edit\" title=\"Edit Preferences\" /></a> <a title=\"Edit provider's Timeoff Requests\" href=\"editUserTimeoffs?user=" + id + "\"><img src=\"images/calendar_view_day.png\" alt=\"Edit\" title=\"Submit Timeoff Requests\" /></a>";
 				var del = "<a href=\"#\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "','')\" /></a>";
 				
 				userArray[inc] = new Array(lastname,firstname,email,phone,group,role,edit,del);
@@ -122,10 +152,31 @@
 					$('#divUser').hide();
 					filterBy("Externals");
 				}
+				
+				$(".multiselect").multiselect();
 			});
 			
-			function getParameterByName(name)
-			{
+			jQuery.fn.multiselect = function() {
+				$(this).each(function() {
+					var checkboxes = $(this).find("input:checkbox");
+					checkboxes.each(function() {
+						var checkbox = $(this);
+						// Highlight pre-selected checkboxes
+						if (checkbox.attr("checked"))
+							checkbox.parent().addClass("multiselect-on");
+			 
+						// Highlight checkboxes that the user selects
+						checkbox.click(function() {
+							if (checkbox.attr("checked"))
+								checkbox.parent().addClass("multiselect-on");
+							else
+								checkbox.parent().removeClass("multiselect-on");
+						});
+					});
+				});
+			};
+			
+			function getParameterByName(name) {
 			  name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
 			  var regexS = "[\\?&]" + name + "=([^&#]*)";
 			  var regex = new RegExp(regexS);
@@ -148,6 +199,20 @@
 				var email = $('#email').val();
 				var phone = $('#phone').val();
 				var group = $('#group').val();
+				
+				var includeShifts = [];
+				var excludeShifts = [];
+				$('.shiftSelections').each(function() {
+					var checked = $(this).attr('checked');
+					var value = $(this).attr('value');
+					
+					if (checked == "checked") {
+						includeShifts.push(value);
+					} else {
+						excludeShifts.push(value);
+					}
+				});
+				
 				var role = $('#role').val();
 				var priority = $('#priority').val();
 				var scheduleProvider = $('#scheduleProvider').val();
@@ -166,6 +231,8 @@
 					"lastname": "" + lastname + "",
 					"email": "" + email + "",
 					"phone": "" + phone + "",
+					"shifts": "" + includeShifts + "",
+					"notShifts": "" + excludeShifts + "",
 					"group": "" + group + "",
 					"role": "" + role + "",
 					"priority": "" + priority + "",
@@ -201,9 +268,10 @@
 								email,
 								phone,
 								group,
+								location,
 								role,
-								"<a title=\"Edit provider's Details\" href=\"#\" class=\"openEditUser\" onClick=\"processEditUserModal('" + username + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" /></a> <a title=\"Edit provider's Scheduling Preferences\" href=\"editUserPrefs?user=" + username + "\"><img src=\"images/wrench.png\" alt=\"Edit\" title=\"Edit Preferences\" /></a> <a title=\"Edit provider's Timeoff Requests\" href=\"editUserTimeoffs?user=" + id + "\"><img src=\"images/calendar_view_day.png\" alt=\"Edit\" title=\"Submit Timeoff Requests\" /></a>",
-								"<a href=\"#\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "')\" /></a>"
+								"<a title=\"Edit provider's Details\" class=\"openEditUser\" onClick=\"processEditUserModal('" + username + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" /></a> <a title=\"Edit provider's Scheduling Preferences\" href=\"editUserPrefs?user=" + username + "\"><img src=\"images/wrench.png\" alt=\"Edit\" title=\"Edit Preferences\" /></a> <a title=\"Edit provider's Timeoff Requests\" href=\"editUserTimeoffs?user=" + id + "\"><img src=\"images/calendar_view_day.png\" alt=\"Edit\" title=\"Submit Timeoff Requests\" /></a>",
+								"<a href=\"\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "')\" /></a>"
 								]
 								);
 								window.location.reload();
@@ -266,8 +334,8 @@
 								email,
 								phone,
 								role,
-								"<a href=\"#\" class=\"openEditUser\" username=\"" + username + "\" onClick=\"processEditExternalUserModal('" + username + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" title=\"Edit\" /></a> | <a href=\"editUserPrefs?user=" + username + "\"><img src=\"images/wrench.png\" alt=\"Edit\" title=\"Edit Preferences\" /></a>",
-								"<a href=\"#\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteExternalUser('" + id + "')\" /></a>"
+								"<a style=\"cursor: pointer;\" class=\"openEditUser\" username=\"" + username + "\" onClick=\"processEditExternalUserModal('" + username + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" title=\"Edit\" /></a> | <a href=\"editUserPrefs?user=" + username + "\"><img src=\"images/wrench.png\" alt=\"Edit\" title=\"Edit Preferences\" /></a>",
+								"<a href=\"\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteExternalUser('" + id + "')\" /></a>"
 								]
 								);
 								setInterval(function(){window.location = "/userMgmt?edit=1"},1000);
@@ -299,7 +367,7 @@
 				
 				if (type == "Providers") {
 					
-					$('#userMgmtLinks').html('<img src="images/user_add.png" alt="Add New User" /> <a href="#" onClick="openNewUser()">Add New Provider</a>');
+					$('#userMgmtLinks').html('<img src="images/user_add.png" alt="Add New User" /> <a onClick="openNewUser()">Add New Provider</a>');
 					endPoint = "ws/getUsers";
 					$('#divExternal').hide();
 					$('#divUser').show();
@@ -325,8 +393,8 @@
 						var phone = userObj[user].phone;
 						var group = userObj[user].group;
 						var role = (userObj[user].role != undefined ? userObj[user].role : 'User');
-						var edit = "<a title=\"Edit User's Details\" href=\"#\" class=\"openEditUser\" onClick=\"processEditUserModal('" + username + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" /></a> <a title=\"Edit User's Scheduling Preferences\" href=\"editUserPrefs?user=" + username + "\"><img src=\"images/wrench.png\" alt=\"Edit\" title=\"Edit Preferences\" /></a> <a title=\"Edit User's Timeoff Requests\" href=\"editUserTimeoffs?user=" + id + "\"><img src=\"images/calendar_view_day.png\" alt=\"Edit\" title=\"Submit Timeoff Requests\" /></a>";
-						var del = "<a href=\"#\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "','')\" /></a>";
+						var edit = "<a title=\"Edit User's Details\" class=\"openEditUser\" onClick=\"processEditUserModal('" + username + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" /></a> <a title=\"Edit User's Scheduling Preferences\" href=\"editUserPrefs?user=" + username + "\"><img src=\"images/wrench.png\" alt=\"Edit\" title=\"Edit Preferences\" /></a> <a title=\"Edit User's Timeoff Requests\" href=\"editUserTimeoffs?user=" + id + "\"><img src=\"images/calendar_view_day.png\" alt=\"Edit\" title=\"Submit Timeoff Requests\" /></a>";
+						var del = "<a><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "','')\" /></a>";
 						
 						userArray[inc] = new Array(lastname,firstname,email,phone,group,role,edit,del);
 						inc++;	
@@ -371,7 +439,7 @@
 					
 				} else {
 					
-					$('#userMgmtLinks').html('<img src="images/user_add.png" alt="Add New User" /> <a href="#" onClick="openNewExtUser()">Add New External Provider</a>');
+					$('#userMgmtLinks').html('<img src="images/user_add.png" alt="Add New User" /> <a style="cursor: pointer;" onClick="openNewExtUser()">Add New External Provider</a>');
 					endPoint = "ws/getExternals";
 					$('#divUser').hide();
 					$('#divExternal').show();
@@ -397,8 +465,8 @@
 						var phone = userObj[user].phone;
 						var orgname = userObj[user].org_name;
 						var role = (userObj[user].role != undefined ? userObj[user].role : 'User');
-						var edit = "<a title=\"Edit User's Details\" href=\"#\" class=\"openEditUser\" onClick=\"processEditExtUserModal('" + id + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" title=\"Edit\" /></a>";
-						var del = "<a href=\"#\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "','external')\" /></a>";
+						var edit = "<a title=\"Edit User's Details\" class=\"openEditUser\" onClick=\"processEditExtUserModal('" + id + "')\"><img src=\"images/user_edit.png\" alt=\"Edit\" title=\"Edit\" /></a>";
+						var del = "<a href=\"\"><img src=\"images/user_delete.png\" alt=\"Delete\" title=\"Delete\" onClick=\"deleteUser('" + id + "','external')\" /></a>";
 						
 						userArray[inc] = new Array(orgname,lastname,firstname,email,phone,edit,del);
 						inc++;
@@ -445,6 +513,7 @@
 			function resetForm() {
 				$('#newUserSuccess').html("");
 				$('#newUserError').html("");
+				$('#location').html("");
 			
 				$('#overrides').hide();
 				$('#overridesLink').show();
@@ -460,20 +529,15 @@
 						$('.group-select').html(""); //clear old options
 						$('.group-select').html(select);
 				});
-                                
-                                $.post("ws/getLocations", {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>"}, 
-                    function (data) {
-						var select = '<select name="location" id="location" onChange="getLocationDefaults()">';
-						var temparray = data["data"];
-						select = select + '<option value="All">All</option>';
-						for(i=0; i<temparray.length; i++) {
-							select = select + '<option value="' + temparray[i]['name'] + '">' + temparray[i]['name'] + '</option>';
+				
+				$.post('ws/getLocations', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>"} , function(data) {
+					if (data.message == "success") {
+						var locs = data.data;
+						for (var loc in locs) {
+							$('#location').append('<option value="' + locs[loc]._id + '">' + locs[loc].name + '</option>');
 						}
-						select = select + "</select>";
-						$('.location-select').html(""); //clear old options
-						$('.location-select').html(select);
+					}
 				});
-                          
 			}
     </script>
 
@@ -497,6 +561,7 @@
 	
 	function openNewUser() {
 		resetForm();
+		getSites();
 		$('#username').attr("disabled", false);
 		$('#username').val("");
 		$('#frmPassword').show();
@@ -508,6 +573,7 @@
 		$('#phone').val("");
 		$('#group').val("");
 		$('#role').val("");
+		$('#location').val("");
 		$('#location').val("");
 		$('#scheduleProvider').val("");
 		
@@ -575,7 +641,7 @@
 			$('#btnSubmitNewUser').attr("value" , " Edit User ");
 			$('#btnSubmitNewUser').attr("onClick" , "processUser('edit')");
 			$('#newUser').attr("title" , "Edit User Below");
-
+			getShiftsForGroup(userObj.group,userObj.preferences.not_shifts);
 			$( "#newUser" ).dialog( "open" );
 			return false;
 		}
@@ -617,6 +683,29 @@
 				$('#maxHours').val(groupObj.max_hours);
 				$('#minHours').val(groupObj.min_hours);
 			});
+			
+			getShiftsForGroup(name);
+		}
+		
+		function getShiftsForGroup(groupName,notShifts) {
+			$.post('ws/getShifts', {"sessionId":"<?=$sessionId;?>","grpcode":"<?=$_SESSION['grpcode'];?>","group":groupName} , function(data) {
+				shiftsObj = data.data;
+				shiftContents = "";
+				if (shiftsObj != null) {
+					for (s in shiftsObj) {
+						if (notShifts != undefined) {
+							var checked = ((notShifts.indexOf(shiftsObj[s]._id.$id) > -1) ? '' : 'checked = checked');
+						} else {
+							var checked = 'checked = checked';
+						}
+						shiftContents += '<label><input type="checkbox"' + checked + '" class="shiftSelections" name="option[]" value="' + shiftsObj[s]._id.$id + '" />' + shiftsObj[s].name + '</label>';
+					}
+				} else {
+					shiftContents += '<div style="padding: 10px;">No shifts available for group</div>';	
+				}
+				$('.multiselect').html('');
+				$('.multiselect').append(shiftContents);
+			});	
 		}
 	</script>
 
@@ -698,7 +787,23 @@
                                 </select>
 							</td>
                             <td style="text-align: center;">
-                                <div class="location-select"></div>
+                            	<select name="location" id="location">
+                                	<div style="padding: 10px;">Select group to display shifts</div>
+                                </select>
+                            </td>
+						</tr>
+						<tr>
+							<td style="background-color: #F2F2F2; text-align: center;">Override working shifts for user</td>
+                            <td style="background-color: #F2F2F2; text-align: center;"></td>
+						</tr>
+						<tr>
+							<td style="text-align: center; padding: 10px;">
+							  	<div class="multiselect">
+                                    
+                                </div>
+							</td>
+                            <td style="text-align: left; font-size: 0.8em; text-height: 8px; padding: 10px;">
+								<span style="font-weight: bold;">Instructions...</span> Select a shift from the left to either assign or unassign a shift from a particular provider.  
                             </td>
 						</tr>
 					</table>
@@ -775,7 +880,7 @@
 								<section>
                                 
 									<div id="userMgmtLinks">
-										<img src="images/user_add.png" alt="Add New User" /> <a href="#" class="openNewEditUser" onClick="openNewUser()">Add New Provider</a>
+										<img src="images/user_add.png" alt="Add New User" /> <a style="cursor: pointer;" class="openNewEditUser" onClick="openNewUser()">Add New Provider</a>
 									</div>
 									
                                     <h2 id="dashboard">Provider Management</h2>

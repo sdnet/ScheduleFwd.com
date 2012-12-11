@@ -37,6 +37,13 @@ class Schedule {
     }
 
     public function generate() {
+		$args = array('col' => $this->groupcode, 'type' => 'schedule', 'where' => array('month' => $this->year, 'year' => $this->month));
+		$schd = $this->db->find($args);
+		$scheduleId = $this->db->_id($schd[0]['_id']);
+		$args = array('col' => $this->groupcode, 'type' => 'schedule', 'where' => array('month' => $this->year, 'year' => $this->month));
+		$result = $this->db->delete($args);
+		$arg = array('col' => $this->groupcode, 'type' => 'tempShift', 'where' => array('scheduleId' => $scheduleId));
+		$results = $this->db->delete($arg);
 
         $y = $this->month;
         $m = $this->year;

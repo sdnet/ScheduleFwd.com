@@ -106,7 +106,7 @@
                                 </header>
                                 <ul class="link-list">
                                     <li id="currentlyWorking"><a href="/home?view=cw">Who's Currently Working</a></li>
-                                    <li id="tradedShifts"><a href="#">Latest Traded Shifts</a></li>
+                                    <!--<li id="tradedShifts"><a href="#">Latest Traded Shifts</a></li>-->
                                     <li id="timeoffRequests"><a href="/home?view=t">Latest Timeoff Requests</a></li>
                                     <li id="providers"><a href="/home?view=u">Providers and Staff</a></li>
                                     <li id="alerts"><a href="/home?view=a">Alerts and Notifications</a> <span id="alertNum" style="display: none; background-color: #CC0000; color: #FFF; border-radius: 2px; padding: 2px; font-weight: bold; font: 0.6em Verdana, sans-serif;"></span></li>

@@ -27,11 +27,15 @@ else {
 	$schedule = getSchedule($sessionId, $_SESSION['grpcode'], $month, $year);
 }
 
-//Here we generate the first day of the month 
-$first_day = mktime(0,0,0,$month, 1, $year) ; 
+// Here we generate the first day of the month (starting on Monday, so we subtract a day)
+$first_day = mktime(0,0,0,$month, 1, $year)-1;
 
-//This gets us the month name 
-$title = date('F', $first_day); 
+// When on the 1st, the month will read the 31st of the previous month due to our offset
+// subtraction above; keep a non-offset date available for month display
+$first_day_without_offset = mktime(0,0,0,$month, 1, $year);
+
+// This gets us the month name
+$title = date('F', $first_day_without_offset);
  
 //Here we find out what day of the week the first day of the month falls on 
 $day_of_week = date('D', $first_day); 
@@ -41,9 +45,6 @@ $day_of_week = date('D', $first_day);
 $numPrevDays = 0;
 
 switch($day_of_week){
-	case "Sun":
-		$numPrevDays = 0;
-		break;
 	case "Mon":
 		$numPrevDays = 1;
 		break; 
@@ -61,6 +62,9 @@ switch($day_of_week){
 		break; 
 	case "Sat":
 		$numPrevDays = 6;
+		break;
+	case "Sun":
+		$numPrevDays = 7;
 		break;
 }
 
@@ -389,9 +393,9 @@ $htmlBody .="<html id=\"pageHTML\">
     
     $htmlBody .= "<table id=\"tblShiftTrade\" style=\"width:100%\">
     	<tr><th colspan=7> $title $year </th></tr> 
-    	<tr id=\"tblShiftTradeDays\"><td width=42>S</td><td width=42>M</td>
-    	<td width=42>T</td><td width=42>W</td><td width=42>T</td>
-    	<td width=42>F</td><td width=42>S</td></tr>";
+    	<tr id=\"tblShiftTradeDays\"><td width=42>M</td><td width=42>T</td>
+    	<td width=42>W</td><td width=42>Th</td><td width=42>F</td>
+    	<td width=42>S</td><td width=42>Su</td></tr>";
     	
     $htmlBody .= $htmlShifts;
     	

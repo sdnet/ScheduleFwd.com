@@ -14,29 +14,13 @@ if(isset($_POST['userId'])){
 }
 // check session
 if(VerifySession($sessionId,$groupcode,$userId,'User') == true){
-	$where = array();
+	/*$where = array();
 	$arg = array('col' => "$groupcode", 'type' => 'schedule', 'limit' => 1, 'id' => $scheduleId);
-	$results = $db->find($arg);
-	if($results != null){
-		foreach($results[0]['schedule'] as $result){
-			if($result['id'] == $shiftId)
-			{
-				$today = date('Y-m-d');
-				if(strtotime($today) > strtotime($result['start']))
-				{
-				$result['editable'] = 0;	
-				}else{
-				$result['editable'] = 1;	
-				}
-				$data = $result;
-				$message = "success";
-				break;	
-			}else{
-				
-				$message = "noRecords";
-			}
-		}
-		
+	$results = $db->find($arg);*/
+	$shift = getShiftFromSchedule($groupcode, $shiftId, $scheduleId);
+	if($shift != null){
+				$data = $shift;
+				$message = "success";	
 	}
 	else{
 		$message = "noRecords";	

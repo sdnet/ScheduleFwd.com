@@ -17,8 +17,8 @@ function microtime_float()
 $time_start = microtime_float();
 $year = "2013";
 $month = "01";
-$groupcode = "tomtest1";
-//$groupcode = "testy";
+//$groupcode = "tomtest1";
+$groupcode = "testy";
 $args = array('col' => "$groupcode", 'type' => 'schedule', 'where' => array('month' => ''.$month.'', 'year' => ''.$year.''));
 $result = $db->delete($args);
 

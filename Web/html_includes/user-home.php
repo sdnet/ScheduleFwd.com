@@ -330,7 +330,7 @@
 								<section>
                                 
                                     <div style="margin-top: 2px; margin-right: 5px; float: right;">
-                                                                            <a href="ws/getiCal?sessionId=<?=$sessionId;?>&grpcode=<?=$_SESSION['grpcode'];?>" target="_new"><img src="images/sync.jpg" title="Sync Calendar with Mobile Devices" /></a> &nbsp; <a href="/timeoff"><img src="images/timeoff.jpg" title="Request Days Off" /></a> &nbsp; <a href="/YourCalendar"><img src="images/sched.jpg" title="View Complete Schedule" /></a> &nbsp; <a href="#" onclick="printSchedule()"><img src="images/print.jpg" title="Print Your Schedule" /></a>
+                                                                            <a href="ws/getiCal?sessionId=<?=$sessionId;?>&grpcode=<?=$_SESSION['grpcode'];?>" target="_new"><img src="images/sync.jpg" title="Sync Calendar with Mobile Devices" /></a> &nbsp; <a href="/timeoff"><img src="images/timeoff.jpg" title="Request Days Off" /></a> &nbsp; <a href="/YourCalendar"><img src="images/sched.jpg" title="View Complete Schedule" /></a> &nbsp; <a href="#" onClick="printSchedule()"><img src="images/print.jpg" title="Print Your Schedule" /></a>
                                                                         </div>
                                 
                                     <h2 id="dashboard">Your Next Four Shifts</h2>
@@ -436,14 +436,12 @@
                                                     </div>
                                                     <hr />
                                                     <div style="background-color: #F2F2F2; border: 1px solid #E6E6E6; border-radius: 7px; padding: 5px; width: 95%">
-                                                        <div style="line-height: 18px; margin-bottom: 6px;">After a night shift (ie: <span style="font-weight: bold;">ending at 7am Tuesday</span>), when is the 
-                                                        earliest that you would prefer to work next? </div>
+                                                        <div style="line-height: 18px; margin-bottom: 6px;">After a night shift (ie: <span style="font-weight: bold;">ending at 7am Tuesday</span>), when is the earliest that you would prefer to work the next Thursday? </div>
                                                         <select id="afterNightShift">
                                                             <option value="">-- Select shift preference below --</option>
-                                                            <option value="Wed7am">Wednesday, 7am</option>
-                                                            <option value="Wed12pm">Wednesday, 12pm</option>
-                                                            <option value="Wed7pm">Wednesday, 7pm</option>
                                                             <option value="Thurs7am">Thursday, 7am</option>
+                                                            <option value="Thurs12pm">Thursday, 12pm</option>
+                                                            <option value="Thurs7pm">Thursday, 7pm</option>
                                                         </select>
                                                     </div>
                                                     <hr />
@@ -510,7 +508,7 @@
 										<h2>Your account</h2>
 									</header>
                                     
-                                    <img src="http://forwardintel.com/images/tom.smallwood.jpg" style="float: left; padding-right: 5px; padding-bottom: 5px;" />
+                                    <img src="/images/placeholder.png" style="float: left; padding-right: 5px; padding-bottom: 5px;" />
                                     
                                     <span id="pflName" style="font-weight: bold; font-size: larger;"></span> <br />
                                     <span id="pflGroup" style="font-size: smaller;"></span> <br />

@@ -1,6 +1,7 @@
 function modalPopup(align, top, width, padding, disableColor, disableOpacity, backgroundColor, borderColor, borderWeight, borderRadius, fadeOutTime, url, loadingImage){
 
 	var containerid = "innerModalPopupDiv";
+	var norefresh = "norefresh";
 		
 	var popupDiv = document.createElement('div');
 	var popupMessage = document.createElement('div');
@@ -14,7 +15,7 @@ function modalPopup(align, top, width, padding, disableColor, disableOpacity, ba
 	
 	blockDiv.setAttribute('id', 'blockModalPopupDiv');
 	blockDiv.setAttribute('class', 'blockModalPopupDiv');
-	blockDiv.setAttribute('onClick', 'closePopup(' + fadeOutTime + ')');
+	blockDiv.setAttribute('onClick', 'closePopup(' + fadeOutTime + ',' + norefresh + ')');
 	
 	document.body.appendChild(popupDiv);
 	popupDiv.appendChild(popupMessage);
@@ -145,7 +146,7 @@ function closePopup(fadeOutTime,inRefresh) {
 	fade('outerModalPopupDiv', fadeOutTime);
 	document.getElementById('blockModalPopupDiv').style.display='none';
 	if (inRefresh != "norefresh") {
-		location.reload();
+		// location.reload();
 	}
 
 }

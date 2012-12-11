@@ -175,25 +175,29 @@ $htmlBody = $htmlBody."<html id=\"pageHTML\">
 	// $month =  date('n',strtotime("+$offset months", $today));
 	$days = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 	
-	//Here we generate the first day of the month 
-	$first_day = mktime(0,0,0,$month, 1, $year) ; 
+	// Here we generate the first day of the month (starting on Monday, so we subtract a day)
+	$first_day = mktime(0,0,0,$month, 1, $year)-1;
 	
-	//This gets us the month name 
-	$title = date('F', $first_day); 
+	// When on the 1st, the month will read the 31st of the previous month due to our offset
+	// subtraction above; keep a non-offset date available for month display
+	$first_day_without_offset = mktime(0,0,0,$month, 1, $year);
+	
+	// This gets us the month name
+	$title = date('F', $first_day_without_offset);
 	 
 	//Here we find out what day of the week the first day of the month falls on 
 	$day_of_week = date('D', $first_day) ; 
 	
 	//Once we know what day of the week it falls on, we know how many blank days occure before it. 
-	switch($day_of_week){ 
-		case "Sun": $blank = 0; break; 
-		case "Mon": $blank = 1; break; 
-		case "Tue": $blank = 2; break; 
-		case "Wed": $blank = 3; break; 
-		case "Thu": $blank = 4; break; 
-		case "Fri": $blank = 5; break; 
-		case "Sat": $blank = 6; break; 
-	}
+	 switch($day_of_week) { 
+		 case "Mon": $blank = 1; break; 
+		 case "Tue": $blank = 2; break; 
+		 case "Wed": $blank = 3; break; 
+		 case "Thu": $blank = 4; break; 
+		 case "Fri": $blank = 5; break; 	
+		 case "Sat": $blank = 6; break; 
+		 case "Sun": $blank = 7; break; 
+	 }
 	
 	//We then determine how many days are in the current month
 	$days_in_month = cal_days_in_month(0, $month, $year) ;
@@ -201,9 +205,9 @@ $htmlBody = $htmlBody."<html id=\"pageHTML\">
 	//Here we start building the table heads 
     $htmlBody = $htmlBody."<table id=\"tblShiftTrade\" style=\"width:100%\">
                            <tr><th colspan=7> $title $year </th></tr>
-                           <tr id=\"tblShiftTradeDays\"><td width=42>S</td><td width=42>M</td><td 
-                                    		width=42>T</td><td width=42>W</td><td width=42>T</td><td 
-                                    		width=42>F</td><td width=42>S</td></tr>";
+                           <tr id=\"tblShiftTradeDays\"><td width=42>M</td><td width=42>T</td><td 
+                                    		width=42>W</td><td width=42>Th</td><td width=42>F</td><td 
+                                    		width=42>S</td><td width=42>Su</td></tr>";
 
                                      //This counts the days in the week, up to 
                                      $day_count = 1;

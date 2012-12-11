@@ -52,8 +52,8 @@
 				var hours = groupObj[i].count;
 							
 				var print = '<a href="/toPDF/?type=preferences&group=' + name + '&print=1" target="_blank"><img src="images/calendar_edit.png" alt="Make PDF of group preferences page" title="Make PDF of group preferences page" /></a> <a href="/toPDF/?type=timeoff&group=' + name + '&print=1" target="_blank"><img src="images/calendar_view_day.png" alt="Make PDF of timeoff requests" title="Make PDF of timeoff requests" /></a>';
-				var edit = '<a href="#" class="" onclick="editGroup(\'' + id + '\')"><img src="images/wrench.png" alt="Edit Group" title="Edit Group" /></a>';
-				var del = '<a href="#" class="" onclick="deleteGroup(\'' + id + '\')"><img src="images/cancel.png" alt="Delete Group" title="Delete Group" /></a>';
+				var edit = '<a style="cursor: pointer;" class="" onclick="editGroup(\'' + id + '\')"><img src="images/wrench.png" alt="Edit Group" title="Edit Group" /></a>';
+				var del = '<a style="cursor: pointer;" class="" onclick="deleteGroup(\'' + id + '\')"><img src="images/cancel.png" alt="Delete Group" title="Delete Group" /></a>';
 
 				groupArray[inc] = new Array(name,max,min,hours,print,edit);
 				inc++;
@@ -77,8 +77,8 @@
 					var description = siteObj[i].short;
 					var numOfUsers = "10";
 								
-					var edit = '<a href="#" class="" onclick="editSite(\'' + id + '\')"><img src="images/wrench.png" alt="Edit Site" title="Edit Site" /></a>';
-					var del = '<a href="#" class="" onclick="deleteSite(\'' + id + '\')"><img src="images/cancel.png" alt="Delete Site" title="Delete Site" /></a>';
+					var edit = '<a style="cursor: pointer;" class="" onclick="editSite(\'' + id + '\')"><img src="images/wrench.png" alt="Edit Site" title="Edit Site" /></a>';
+					var del = '<a style="cursor: pointer;" class="" onclick="deleteSite(\'' + id + '\')"><img src="images/cancel.png" alt="Delete Site" title="Delete Site" /></a>';
 	
 					siteObj[inc] = new Array(name,description,numOfUsers,edit,del);
 					inc++;
@@ -297,15 +297,9 @@
 								<section>
 
                                     <h2 id="dashboard">Site, Group and Role Management</h2>
-							
-                            		<!--
-									<div id="userMgmtLinks">
-										<img src="images/group_add.png" alt="Add New Group" /> <a href="#" class="openNewEditGroup">Add New Group</a>
-									</div>
-									-->
                                     
                                     <div style="float: right;">
-                                    	<img src="images/house.png" alt="Add new site" title="Add new site"> <a href="#" class="openNewEditSite">Add New Site</a>
+                                    	<img src="images/house.png" alt="Add new site" title="Add new site"> <a style="cursor: pointer;" class="openNewEditSite">Add New Site</a>
                                     </div>
 									<h3>Location Management</h3>
 

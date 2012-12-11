@@ -17,8 +17,11 @@
  
 (function ($, undefined) {
 
-    function displayUsers(inUsers, scheduleId, shiftId) {
+    function displayUsers(inShiftName, inStart, inEnd, inUsers, scheduleId, shiftId, opt) {
+		// event.shiftName, event.start, event.end, event.users, event.scheduleId, event.id
         retUsers = "";
+		var displayDate = htmlEscape(formatDates(inStart, inEnd, opt('timeFormat'))) + "-" + getTimeFromDate(inEnd);
+		displayDate = displayDate.substring(0,displayDate.length-1);
         if (inUsers != "") {
 			for (var i = 0; i <= inUsers.length; i++) {
 				if (inUsers[i] != null) {
@@ -32,11 +35,16 @@
 						
 						user = inUsers[i].first_name.substring(0,1) != "" ? inUsers[i].first_name.substring(0,1) + ".  " + inUsers[i].last_name : inUsers[i].last_name;
 					}
-					retUsers = retUsers + "<div class=\"usersInShift\" id=\"indiUser_" + scheduleId + shiftId + inUsers[i].user_name + "\" style=\"padding: 5px; margin-left: 3px; margin-bottom: 0px; margin-top: 0px; line-height: 12px;\">" + user + "</div>";
+					
+					if (i > 0) { 
+						inShiftName = ""; 
+						displayDate = "";
+					}
+					retUsers = retUsers + "<div class=\"usersInShift\" id=\"indiUser_" + scheduleId + shiftId + inUsers[i].user_name + "\" style=\"padding: 5px; margin-left: 3px; margin-bottom: 0px; margin-top: 0px; line-height: 12px;\">" + inShiftName + " " + displayDate + " <span style=\"float: right;\">" + user + "</span></div>";
 				}
 			}
         } else {
-			retUsers = retUsers + "<div class=\"usersInShift\" id=\"indiUser_" + scheduleId + shiftId + "\" style=\"padding: 5px; margin-left: 3px; margin-bottom: 0px; margin-top: 0px; line-height: 12px;\">Open</div>";	
+			retUsers = retUsers + "<div class=\"usersInShift\" id=\"indiUser_" + scheduleId + shiftId + "\" style=\"padding: 5px; margin-left: 3px; margin-bottom: 0px; margin-top: 0px; line-height: 12px;\">" + inShiftName + " " + displayDate + " <span style=\"float: right;\">Open</span></div>";	
 		}
         return retUsers;
     }
@@ -4813,6 +4821,18 @@
 				">";
                 var view = $('#calendar').fullCalendar('getView');
                 if (!event.allDay && seg.isStart) {
+                    html += "<div id=\"users_" + event.scheduleId + event.id + "\" style=\"height: auto;\">";
+                    if (view.title.indexOf("&#8212;") > -1) {
+                        html += displayUsers(event.shiftName, event.start, event.endreal, event.users, event.scheduleId, event.id, opt);
+                    } else {
+						html += displayUsers(event.shiftName, event.start, event.endreal, event.users, event.scheduleId, event.id, opt);
+					}
+                    // Monthly view
+                    // htmlEscape(formatDates(event.start, event.end, opt('timeFormat'))) +
+                    html += "</div></div></div></div>";
+                }
+				/*
+                if (!event.allDay && seg.isStart) {
                     html +=
                     "<div style=\"width: 100%; border-bottom: 1px dotted #555; background-color: transparent;\">" + 
 					"<span style=\"width: 100%; padding: 4px; background-color: #A9BDD0; margin-left: 3px; \">" + event.shiftName + "</span>" + 
@@ -4820,14 +4840,16 @@
 					"<div class='margin: 5px; padding: 5px;'>"
 					+ "<div id=\"users_" + event.scheduleId + event.id + "\" style=\"height: auto;\">";
                     if (view.title.indexOf("&#8212;") > -1) {
-                        html += displayUsers(event.users, event.scheduleId, event.id);
+                        html += displayUsers(event.shiftName, event.start, event.end, event.users, event.scheduleId, event.id);
                     } else {
-						html += displayUsers(event.users, event.scheduleId, event.id);
+						html += displayUsers(event.shiftName, event.start, event.end, event.users, event.scheduleId, event.id);
 					}
                     // Monthly view
                     // htmlEscape(formatDates(event.start, event.end, opt('timeFormat'))) +
                     html += "</div></div></div></div>";
                 }
+				*/
+				
                 /*
                 html +=
                 "<span class='fc-event-title'>" + htmlEscape(event.title) + "</span>" +

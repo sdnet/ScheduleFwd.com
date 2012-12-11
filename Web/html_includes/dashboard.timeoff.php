@@ -146,7 +146,7 @@
                                 </header>
                                 <ul class="link-list">
                                     <li id="currentlyWorking"><a href="/home?view=cw">Who's Currently Working</a></li>
-                                    <li id="tradedShifts"><a href="#">Latest Traded Shifts</a></li>
+                                    <!--<li id="tradedShifts"><a href="#">Latest Traded Shifts</a></li>-->
                                     <li id="timeoffRequests"><a href="/home?view=t">Latest Timeoff Requests</a></li>
                                     <li id="providers"><a href="/home?view=u">Providers and Staff</a></li>
                                     <li id="alerts"><a href="/home?view=a">Alerts and Notifications</a> <span id="alertNum" style="display: none; background-color: #CC0000; color: #FFF; border-radius: 2px; padding: 2px; font-weight: bold; font: 0.6em Verdana, sans-serif;"></span></li>
@@ -175,39 +175,31 @@
 							 $month = date('m', $date) ; 
 							 $year = date('Y', $date) ;
 
-							 //Here we generate the first day of the month 
-							 $first_day = mktime(0,0,0,$month, 1, $year) ; 
-
-							 //This gets us the month name 
-							 $title = date('F', $first_day) ; 
+							// Here we generate the first day of the month (starting on Monday, so we subtract a day)
+							$first_day = mktime(0,0,0,$month, 1, $year)-1;
+							
+							// When on the 1st, the month will read the 31st of the previous month due to our offset
+							// subtraction above; keep a non-offset date available for month display
+							$first_day_without_offset = mktime(0,0,0,$month, 1, $year);
+							
+							// This gets us the month name
+							$title = date('F', $first_day_without_offset);
                             
                             //Here we find out what day of the week the first day of the month falls on 
 							 $day_of_week = date('D', $first_day) ; 
-							
-							
-							
+
 							 //Once we know what day of the week it falls on, we know how many blank days occure before it. If the first day of the week is a Sunday then it would be zero
 							
-							 switch($day_of_week){ 
-							
-							 case "Sun": $blank = 0; break; 
-							
-							 case "Mon": $blank = 1; break; 
-							
-							 case "Tue": $blank = 2; break; 
-							
-							 case "Wed": $blank = 3; break; 
-							
-							 case "Thu": $blank = 4; break; 
-							
-							 case "Fri": $blank = 5; break; 
-							
-							 case "Sat": $blank = 6; break; 
-							
-							 }
-							
-							
-							
+							switch($day_of_week) { 
+								 case "Mon": $blank = 1; break; 
+								 case "Tue": $blank = 2; break; 
+								 case "Wed": $blank = 3; break; 
+								 case "Thu": $blank = 4; break; 
+								 case "Fri": $blank = 5; break; 	
+								 case "Sat": $blank = 6; break; 
+								 case "Sun": $blank = 7; break; 
+						 	}
+
 							 //We then determine how many days are in the current month
 							
 							 $days_in_month = cal_days_in_month(0, $month, $year) ; 
@@ -217,7 +209,7 @@
 							echo '<div id="calendarDisplay" style="text-align: center; width: 100%; margin: 0 auto;">';
 							echo '<h3>' . $title . " " . $year . '</h3>';
 							echo "<table border=1 width=100% style=\"border: 1px solid #9C9C9C;\">";
-							 	echo "<tr><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>S</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>M</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>T</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>W</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>T</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>F</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>S</td></tr>";
+							 	echo "<tr><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>Mon</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>Tues</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>Wed</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>Thurs</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>Fri</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>Sat</td><td style=\"background-color: #D9D9D9; text-align: center;\" width=42>Sun</td></tr>";
 							 	
 								//This counts the days in the week, up to 7
 								$day_count = 1;

@@ -14,6 +14,7 @@ $role = $_POST['role'];
 $picture = $_POST['picture'];
 $location = $_POST['location'];
 $scheduleProvider = $_POST['scheduleProvider'];
+$notShifts = $_POST['notShifts'];
 if(isset($_POST['min']) && $_POST['min'] != ""){
 	$min = $_POST['min'];
 }
@@ -47,7 +48,7 @@ if(VerifySession($sessionId,$groupcode,$_SESSION['_id'],'Admin') == true){
 							$priority = 1;	
 						}
 						
-						$obj = array('user_name' => "$username", 'active' => 1, 'email' => $email, 'first_name' => $firstName, 'last_name' => $lastName, 'phone' => $phone, 'group' => $group, 'priority' => $priority, 'role' => $role, 'picture' => $picture, 'location' => $location, 'scheduleProvider' => $scheduleProvider, 'date_created' => new MongoDate());		
+						$obj = array('user_name' => "$username", 'active' => 1, 'email' => $email, 'first_name' => $firstName, 'last_name' => $lastName, 'phone' => $phone, 'group' => $group, 'priority' => $priority, 'role' => $role, 'picture' => $picture, 'location' => $location, 'scheduleProvider' => $scheduleProvider,  'preferences' => array('not_shifts' => $notShifts), 'date_created' => new MongoDate());		
 						if(isset($min) && isset($max) && is_numeric($max) && is_numeric($min)){
 							$hourArray = array('min_hours' => $min, 'max_hours' => $max);
 							$obj = array_merge($obj, $hourArray);

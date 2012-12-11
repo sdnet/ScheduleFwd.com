@@ -20,6 +20,32 @@ if(VerifySession($sessionId,$groupcode,$_SESSION['_id'],'Admin') == true){
 			}else{
 				$message =  "noRecord";	
 			}
+			
+			// remove the shift from user preference documents
+			$arg = array('col' => "$groupcode", 'type' => 'user');
+			$results = $db->find($arg);
+			foreach ($results as $result) {
+				$shiftPrefs = $result['preferences']['shifts'];
+				foreach ($shiftPrefs as $key => $shift) {
+					if ($shift == $shiftId) {
+						unset($result['preferences']['shifts'][$key]);
+						$tmpShiftOrder = $result['preferences']['shifts'];
+						unset($result['preferences']['shifts']);
+						$i=0;
+						foreach ($tmpShiftOrder as $key => $shift2) {
+							$result['preferences']['shifts'][$i] = $shift2;
+							$i++;
+						}
+					}
+				}
+				
+				if ($result['preferences']['shifts'] == "") {
+					$result['preferences']['shifts'] = array();	
+				}
+				
+				// $result is ready to be upserted
+				$data = $db->upsert(array('id' => $result['_id'], 'col' => $groupcode, 'type' => "user", 'obj' => $result ));
+			}
 		}
 }else{
 //return auth failure

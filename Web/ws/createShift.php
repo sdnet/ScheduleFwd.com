@@ -34,6 +34,7 @@ if(VerifySession($sessionId,$groupcode,$_SESSION['_id'],true) == true){
 				$message =  "nameExists";	
 			}
 		}
+				
 }else{
 //return auth failure
 $message = "authFailure";	
